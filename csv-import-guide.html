@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check a messy CSV before you import it - five checks and a worked example</title>
+<meta name="description" content="Five checks that catch most CSV import problems: formula-like cells, ambiguous dates, duplicates versus conflicting records, placeholders and broken rows. With a worked example on synthetic data.">
+<style>
+  :root { --ink:#14161a; --muted:#5b6170; --line:#e3e5ea; --bg:#f7f8fa; --accent:#1f5eff; --accent-dark:#1647c4; --ok:#147a3d; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--ink); background:#fff; line-height:1.55; overflow-wrap:anywhere; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  header { border-bottom:1px solid var(--line); }
+  header .wrap { display:flex; justify-content:space-between; align-items:center; padding-top:14px; padding-bottom:14px; }
+  .brand { font-weight:800; letter-spacing:.14em; font-size:15px; }
+  .hero { padding: 56px 0 40px; }
+  .eyebrow { color:var(--accent); font-weight:700; font-size:14px; letter-spacing:.04em; text-transform:uppercase; margin:0 0 10px; }
+  h1 { font-size: clamp(30px, 6vw, 44px); line-height:1.15; margin:0 0 16px; }
+  .lead { font-size: 19px; color:var(--muted); margin:0 0 28px; max-width: 640px; }
+  .price { display:flex; align-items:baseline; gap:10px; margin: 0 0 22px; }
+  .price strong { font-size: 40px; }
+  .price span { color:var(--muted); }
+  .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; font-size:18px; padding:16px 28px; border-radius:10px; min-height:48px; }
+  .btn:hover, .btn:focus { background:var(--accent-dark); }
+  .btn:focus-visible { outline:3px solid #9db8ff; outline-offset:2px; }
+  .small { font-size:14px; color:var(--muted); margin-top:12px; }
+  section { padding: 40px 0; border-top:1px solid var(--line); }
+  h2 { font-size: 24px; margin: 0 0 18px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap:16px; }
+  .card { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
+  .card h3 { margin:0 0 6px; font-size:17px; }
+  .card p { margin:0; color:var(--muted); }
+  ul.check { list-style:none; padding:0; margin:0; }
+  ul.check li { padding-left:28px; position:relative; margin-bottom:10px; }
+  ul.check li::before { content:"\2713"; position:absolute; left:0; color:var(--ok); font-weight:800; }
+  ul.plain { padding-left:20px; margin:0; }
+  ul.plain li { margin-bottom:8px; }
+  ol.steps { padding-left:22px; margin:0; }
+  ol.steps li { margin-bottom:10px; }
+  .cta { text-align:center; background:var(--bg); border-radius:14px; padding:36px 20px; margin: 40px 0; border:1px solid var(--line); }
+  footer { color:var(--muted); font-size:14px; padding: 28px 0 40px; border-top:1px solid var(--line); }
+  @media (max-width: 520px) { .btn { display:block; text-align:center; } .hero { padding-top:36px; } }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">OBSIDIAN</div>
+    <a href="index.html" style="color:var(--accent);font-weight:700;text-decoration:none">&larr; Commercial Headquarters</a> | <a href="#help" style="color:var(--accent);font-weight:700;text-decoration:none">Get it checked for you</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <p class="eyebrow">CSV guide</p>
+    <h1>Check a messy CSV before you import it</h1>
+    <p class="lead">Most CSV import problems come from five things you can check yourself. Here is how to spot each one, a worked example on a synthetic file, and where to get it checked if you would rather not do it yourself.</p>
+  </div>
+
+  <section>
+    <h2>Five checks before you import</h2>
+    <ol class="steps">
+      <li><strong>Text that would run as a formula.</strong> A cell that is not a plain number but begins with =, +, - or @ can be run as a formula when the file is opened in a spreadsheet. Search each text column for those first characters.</li>
+      <li><strong>Dates that can be read two ways.</strong> 03/04/2025 is either 3 April or 4 March. If some value in the column has a first or second part above 12, the order can be proven. If none does, decide the order yourself instead of letting the importer guess.</li>
+      <li><strong>Duplicates versus conflicts.</strong> Rows that repeat exactly are easy to see. Rows that share an email or ID but disagree elsewhere are a decision, not something to delete. Sort by the key column and compare neighbouring rows.</li>
+      <li><strong>Placeholders and blanks.</strong> "N/A", "null", "-" and an empty cell can mean different things to an importer. Filter each column for them and decide what each should become.</li>
+      <li><strong>Rows with the wrong number of cells.</strong> A stray comma or line break inside a value shifts every cell after it. Open the file in a plain text editor and look at rows that are longer or shorter than the header.</li>
+    </ol>
+  </section>
+
+  <section id="scanner">
+    <h2>Check your own file in your browser, free</h2>
+    <p>The five checks above are built into a free scanner. Choose a CSV and it lists formula-like text, dates that can be read two ways, duplicate and conflicting records, placeholders, blanks, rows with the wrong number of cells, leading zeros and long numbers at risk, and other import problems - each with its spreadsheet row number. The file is read on your own device and is not uploaded. You can download the findings as a report and a CSV.</p>
+    <p><a class="btn" href="scanner/">Open the free CSV scanner</a></p>
+    <p class="small">Or first see <a href="scanner/csv-import-problems.html">what it found in a synthetic store export</a>. The scanner only finds problems; it does not change your file. If you would rather have the file repaired with a log of every change, the services below do that.</p>
+  </section>
+
+  <section>
+    <h2>A worked example (synthetic data, not a client file)</h2>
+    <p>An eight-row synthetic CSV contained three duplicate groups: one group of exact repeats and two groups of records that shared a key but disagreed elsewhere - six rows in the two conflict groups. The same file also held formula-like text, ambiguous numbers, placeholder text, a repeated row and an empty cell.</p>
+    <p>Nothing was deleted. Each finding was listed with its spreadsheet row number so a person could decide what to keep. A cell with no flag is not a guarantee of business correctness.</p>
+  </section>
+
+  <section id="help">
+    <p><a href="showcase/">See the OBSIDIAN showcase: synthetic evidence, a short walkthrough and inquiry options</a></p>
+    <h2>If you would rather have it checked for you</h2>
+    <p>Choose by what you need and how many rows your file has:</p>
+    <table>
+      <tr><th>What you need</th><th>Rows</th><th>Service and price</th></tr>
+      <tr><td>A cleaned file, a log of every change and a list of problems for you to decide</td><td>up to 50</td><td><a href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page">CSV Cleaning Starter - CA$15</a></td></tr>
+      <tr><td>A list of every duplicate and conflicting record, read-only</td><td>up to 2,000</td><td><a href="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page">Duplicate Detection &amp; Audit - CA$29</a></td></tr>
+      <tr><td>A ranked audit of what is wrong, per column, read-only</td><td>up to 100 data rows, 30 columns, 1 MiB</td><td><a href="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page">Spreadsheet Quality Audit - CA$39</a></td></tr>
+      <tr><td>Cleaning a larger file, or a question before buying</td><td>up to 10,000</td><td><a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report">Fiverr listing</a> - US$20 (100 rows), US$100 (2,000) or US$200 (10,000); you can message the seller there before ordering</td></tr>
+    </table>
+    <p class="small">Confirm scope BEFORE payment: agree the row count, columns, file size and a private transfer route first. Do not pay or send files until scope and transfer arrangements are accepted. Confidential or identifiable customer data is not accepted until privacy, transfer and retention safeguards are verified and approved. CA$ services use Stripe-hosted checkout after scope confirmation. Fiverr orders are placed and paid on Fiverr.</p>
+  </section>
+
+  <section>
+    <h2>Honest scope</h2>
+    <ul class="plain">
+      <li>CSV files only, one sheet per order. Not included: CRM imports or field mapping, email or phone verification, Excel workbooks with formulas or multiple sheets.</li>
+      <li>Where a date could be read day-first or month-first, it is flagged and left as it is - not guessed.</li>
+      <li>Duplicates are flagged, not deleted. You decide what goes.</li>
+      <li>No guarantee that another system will accept the file on import; the reports show exactly what was found and changed.</li>
+      <li>Your file is processed on my own machine, never shared, and deleted within 7 days of delivery. Nobody in your data is contacted.</li>
+      <li>If the file does not fit the scope, I tell you before starting rather than deliver poor work.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">OBSIDIAN - CSV guide. Payments are processed by Stripe or Fiverr; card details never reach this site.</div>
+</footer>
+</body>
+</html>

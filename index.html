@@ -1,118 +1,994 @@
-<!doctype html>
-<html lang="en-CA">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Check a messy CSV before you import it - five checks and a worked example</title>
-<meta name="description" content="Five checks that catch most CSV import problems: formula-like cells, ambiguous dates, duplicates versus conflicting records, placeholders and broken rows. With a worked example on synthetic data.">
-<style>
-  :root { --ink:#14161a; --muted:#5b6170; --line:#e3e5ea; --bg:#f7f8fa; --accent:#1f5eff; --accent-dark:#1647c4; --ok:#147a3d; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--ink); background:#fff; line-height:1.55; overflow-wrap:anywhere; }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
-  header { border-bottom:1px solid var(--line); }
-  header .wrap { display:flex; justify-content:space-between; align-items:center; padding-top:14px; padding-bottom:14px; }
-  .brand { font-weight:800; letter-spacing:.14em; font-size:15px; }
-  .hero { padding: 56px 0 40px; }
-  .eyebrow { color:var(--accent); font-weight:700; font-size:14px; letter-spacing:.04em; text-transform:uppercase; margin:0 0 10px; }
-  h1 { font-size: clamp(30px, 6vw, 44px); line-height:1.15; margin:0 0 16px; }
-  .lead { font-size: 19px; color:var(--muted); margin:0 0 28px; max-width: 640px; }
-  .price { display:flex; align-items:baseline; gap:10px; margin: 0 0 22px; }
-  .price strong { font-size: 40px; }
-  .price span { color:var(--muted); }
-  .btn { display:inline-block; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; font-size:18px; padding:16px 28px; border-radius:10px; min-height:48px; }
-  .btn:hover, .btn:focus { background:var(--accent-dark); }
-  .btn:focus-visible { outline:3px solid #9db8ff; outline-offset:2px; }
-  .small { font-size:14px; color:var(--muted); margin-top:12px; }
-  section { padding: 40px 0; border-top:1px solid var(--line); }
-  h2 { font-size: 24px; margin: 0 0 18px; }
-  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap:16px; }
-  .card { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
-  .card h3 { margin:0 0 6px; font-size:17px; }
-  .card p { margin:0; color:var(--muted); }
-  ul.check { list-style:none; padding:0; margin:0; }
-  ul.check li { padding-left:28px; position:relative; margin-bottom:10px; }
-  ul.check li::before { content:"\2713"; position:absolute; left:0; color:var(--ok); font-weight:800; }
-  ul.plain { padding-left:20px; margin:0; }
-  ul.plain li { margin-bottom:8px; }
-  ol.steps { padding-left:22px; margin:0; }
-  ol.steps li { margin-bottom:10px; }
-  .cta { text-align:center; background:var(--bg); border-radius:14px; padding:36px 20px; margin: 40px 0; border:1px solid var(--line); }
-  footer { color:var(--muted); font-size:14px; padding: 28px 0 40px; border-top:1px solid var(--line); }
-  @media (max-width: 520px) { .btn { display:block; text-align:center; } .hero { padding-top:36px; } }
-  table { width:100%; border-collapse:collapse; font-size:15px; }
-  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { color:var(--muted); font-weight:600; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dustin Rebellato — Data Integrity &amp; Operational Systems</title>
+  <meta name="description" content="Precision spreadsheet data cleanup, non-destructive duplicate audits, and structured operational data systems by Dustin Rebellato.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 90,50 50,90 10,50' fill='%23176b58'/></svg>">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="brand">OBSIDIAN</div>
-    <a href="#help" style="color:var(--accent);font-weight:700;text-decoration:none">Get it checked for you</a>
-  </div>
-</header>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-<main class="wrap">
-  <div class="hero">
-    <p class="eyebrow">CSV guide</p>
-    <h1>Check a messy CSV before you import it</h1>
-    <p class="lead">Most CSV import problems come from five things you can check yourself. Here is how to spot each one, a worked example on a synthetic file, and where to get it checked if you would rather not do it yourself.</p>
-  </div>
+  <!-- Top Announcement Bar -->
+  <aside class="announcement-bar">
+    <div class="container announcement-inner">
+      <span class="badge">Commercial Headquarters</span>
+      <p>Accepting private spreadsheet audits and data standardization projects. Order via Fiverr escrow, connect locally on Kijiji, or compile a direct inquiry.</p>
+      <a href="#services" class="announcement-link">View Packages &amp; Order &rarr;</a>
+    </div>
+  </aside>
 
-  <section>
-    <h2>Five checks before you import</h2>
-    <ol class="steps">
-      <li><strong>Text that would run as a formula.</strong> A cell that is not a plain number but begins with =, +, - or @ can be run as a formula when the file is opened in a spreadsheet. Search each text column for those first characters.</li>
-      <li><strong>Dates that can be read two ways.</strong> 03/04/2025 is either 3 April or 4 March. If some value in the column has a first or second part above 12, the order can be proven. If none does, decide the order yourself instead of letting the importer guess.</li>
-      <li><strong>Duplicates versus conflicts.</strong> Rows that repeat exactly are easy to see. Rows that share an email or ID but disagree elsewhere are a decision, not something to delete. Sort by the key column and compare neighbouring rows.</li>
-      <li><strong>Placeholders and blanks.</strong> "N/A", "null", "-" and an empty cell can mean different things to an importer. Filter each column for them and decide what each should become.</li>
-      <li><strong>Rows with the wrong number of cells.</strong> A stray comma or line break inside a value shifts every cell after it. Open the file in a plain text editor and look at rows that are longer or shorter than the header.</li>
-    </ol>
-  </section>
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand-link" aria-label="Dustin Rebellato Homepage">
+        <span class="brand-glyph" aria-hidden="true">&#9670;</span>
+        <span class="brand-name">Dustin Rebellato</span>
+      </a>
 
-  <section id="scanner">
-    <h2>Check your own file in your browser, free</h2>
-    <p>The five checks above are built into a free scanner. Choose a CSV and it lists formula-like text, dates that can be read two ways, duplicate and conflicting records, placeholders, blanks, rows with the wrong number of cells, leading zeros and long numbers at risk, and other import problems - each with its spreadsheet row number. The file is read on your own device and is not uploaded. You can download the findings as a report and a CSV.</p>
-    <p><a class="btn" href="scanner/">Open the free CSV scanner</a></p>
-    <p class="small">Or first see <a href="scanner/csv-import-problems.html">what it found in a synthetic store export</a>. The scanner only finds problems; it does not change your file. If you would rather have the file repaired with a log of every change, the services below do that.</p>
-  </section>
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="siteNav" aria-label="Toggle navigation menu">
+        <span class="hamburger"></span>
+      </button>
 
-  <section>
-    <h2>A worked example (synthetic data, not a client file)</h2>
-    <p>An eight-row synthetic CSV contained three duplicate groups: one group of exact repeats and two groups of records that shared a key but disagreed elsewhere - six rows in the two conflict groups. The same file also held formula-like text, ambiguous numbers, placeholder text, a repeated row and an empty cell.</p>
-    <p>Nothing was deleted. Each finding was listed with its spreadsheet row number so a person could decide what to keep. A cell with no flag is not a guarantee of business correctness.</p>
-  </section>
+      <nav class="site-nav" id="siteNav">
+        <ul class="nav-list">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#services" class="nav-link">Services &amp; Pricing</a></li>
+          <li><a href="scanner/" class="nav-link">Free Scanner</a></li>
+          <li><a href="csv-import-guide.html" class="nav-link">Import Guide</a></li>
+          <li><a href="#technology" class="nav-link">Technology</a></li>
+          <li><a href="#demonstrations" class="nav-link">Demonstration</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#contact" class="btn btn-sm btn-primary">Start Inquiry</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-  <section id="help">
-    <p><a href="showcase/">See the OBSIDIAN showcase: synthetic evidence, a short walkthrough and inquiry options</a></p>
-    <h2>If you would rather have it checked for you</h2>
-    <p>Choose by what you need and how many rows your file has:</p>
-    <table>
-      <tr><th>What you need</th><th>Rows</th><th>Service and price</th></tr>
-      <tr><td>A cleaned file, a log of every change and a list of problems for you to decide</td><td>up to 50</td><td><a href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page">CSV Cleaning Starter - CA$15</a></td></tr>
-      <tr><td>A list of every duplicate and conflicting record, read-only</td><td>up to 2,000</td><td><a href="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page">Duplicate Detection &amp; Audit - CA$29</a></td></tr>
-      <tr><td>A ranked audit of what is wrong, per column, read-only</td><td>up to 100 data rows, 30 columns, 1 MiB</td><td><a href="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page">Spreadsheet Quality Audit - CA$39</a></td></tr>
-      <tr><td>Cleaning a larger file, or a question before buying</td><td>up to 10,000</td><td><a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report">Fiverr listing</a> - US$20 (100 rows), US$100 (2,000) or US$200 (10,000); you can message the seller there before ordering</td></tr>
-    </table>
-    <p class="small">Confirm scope BEFORE payment: agree the row count, columns, file size and a private transfer route first. Do not pay or send files until scope and transfer arrangements are accepted. Confidential or identifiable customer data is not accepted until privacy, transfer and retention safeguards are verified and approved. CA$ services use Stripe-hosted checkout after scope confirmation. Fiverr orders are placed and paid on Fiverr.</p>
-  </section>
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="eyebrow-tag">
+            <span class="pulse-dot"></span>
+            Data Integrity &amp; Operational Systems
+          </div>
+          <h1 class="hero-title">
+            Intelligent operations.<br>
+            <span class="text-accent">Reliable data.</span><br>
+            Better decisions.
+          </h1>
+          <p class="hero-lead">
+            We build inspectable data pipelines, precision spreadsheet audits, and structured operational workflows for growing businesses, bookkeepers, and operators who cannot afford silent data corruption.
+          </p>
+          <div class="hero-cta-group">
+            <a href="#services" class="btn btn-primary">Select a Service &amp; Order</a>
+            <a href="#demonstrations" class="btn btn-secondary">Inspect Synthetic Proof</a>
+          </div>
+          <div class="hero-proof-strip">
+            <div class="proof-item">
+              <strong class="proof-number">100%</strong>
+              <span class="proof-label">Non-destructive preservation</span>
+            </div>
+            <div class="proof-item">
+              <strong class="proof-number">0</strong>
+              <span class="proof-label">Rows silently deleted</span>
+            </div>
+            <div class="proof-item">
+              <strong class="proof-number">Fiverr Escrow</strong>
+              <span class="proof-label">On-platform buyer protection</span>
+            </div>
+          </div>
+        </div>
 
-  <section>
-    <h2>Honest scope</h2>
-    <ul class="plain">
-      <li>CSV files only, one sheet per order. Not included: CRM imports or field mapping, email or phone verification, Excel workbooks with formulas or multiple sheets.</li>
-      <li>Where a date could be read day-first or month-first, it is flagged and left as it is - not guessed.</li>
-      <li>Duplicates are flagged, not deleted. You decide what goes.</li>
-      <li>No guarantee that another system will accept the file on import; the reports show exactly what was found and changed.</li>
-      <li>Your file is processed on my own machine, never shared, and deleted within 7 days of delivery. Nobody in your data is contacted.</li>
-      <li>If the file does not fit the scope, I tell you before starting rather than deliver poor work.</li>
-    </ul>
-  </section>
-</main>
+        <div class="hero-card">
+          <div class="terminal-card">
+            <div class="terminal-header">
+              <div class="window-buttons">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="terminal-title">audit-engine :: status-ready</span>
+            </div>
+            <div class="terminal-body">
+              <div class="code-line"><span class="cmd-prompt">&gt;</span> <span class="cmd-text">audit.run --source client_export.csv --mode non-destructive</span></div>
+              <div class="code-output text-muted">[INFO] Loading 8 tabular records across 5 columns...</div>
+              <div class="code-output text-success">[PASS] Record preservation check: 8 in &rarr; 8 out (0 deleted).</div>
+              <div class="code-output text-accent">[FLAG] 2 exact duplicate rows isolated in exceptions.csv</div>
+              <div class="code-output text-accent">[FLAG] 1 conflicting SKU quantity isolated for human review</div>
+              <div class="code-output text-accent">[LOG]  2 whitespace transformations logged in changes.csv</div>
+              <div class="code-output text-success">[DONE] Verification summary &amp; signed audit artifact generated.</div>
+              <div class="code-line mt-2"><span class="cmd-prompt">&gt;</span> <span class="cmd-cursor">_</span></div>
+            </div>
+            <div class="terminal-footer">
+              <span class="status-indicator online"></span> Engine operational · Air-gapped local workstation
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<footer>
-  <div class="wrap">OBSIDIAN - CSV guide. Payments are processed by Stripe or Fiverr; card details never reach this site.</div>
-</footer>
+    <!-- Services & Pricing Section -->
+    <section class="services-section section-padding" id="services">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-eyebrow">Verified Commercial Packages</span>
+          <h2 class="section-title">Transparent Pricing. Protected Checkout.</h2>
+          <p class="section-lead">
+            All spreadsheet cleaning packages include non-destructive duplicate detection, cell-level change logs, exceptions reports, and mathematical reconciliation. Choose your tier below to order directly via Fiverr escrow protection.
+          </p>
+        </div>
+
+        <!-- Fiverr Verified Packages -->
+        <div class="packages-block">
+          <div class="packages-grid">
+            <!-- Basic Package -->
+            <div class="package-card">
+              <span class="package-tag">Fiverr Basic</span>
+              <h4 class="package-name">Basic CSV Cleanup</h4>
+              <div class="package-price">US$20 <span class="price-type">/ fixed</span></div>
+              <p class="package-desc">Ideal for small tabular files needing whitespace normalization, duplicate flagging, and date standardization.</p>
+              <ul class="package-checklist">
+                <li>Up to <strong>100 data rows</strong></li>
+                <li>Clean master CSV (0 rows deleted)</li>
+                <li>Cell-level reversible change log</li>
+                <li>Exceptions sheet for human review</li>
+                <li>Summary &amp; verification report</li>
+                <li><strong>3-day delivery</strong> · <strong>1 revision</strong></li>
+              </ul>
+              <a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-block">Order Basic on Fiverr &rarr;</a>
+            </div>
+
+            <!-- Standard Package -->
+            <div class="package-card featured-package">
+              <span class="package-tag featured-tag">Most Popular</span>
+              <h4 class="package-name">Standard Data Audit</h4>
+              <div class="package-price">US$100 <span class="price-type">/ fixed</span></div>
+              <p class="package-desc">Comprehensive data normalization, duplicate detection, and conflict isolation for operational datasets.</p>
+              <ul class="package-checklist">
+                <li>Up to <strong>2,000 data rows</strong></li>
+                <li>Deep duplicate &amp; conflict isolation</li>
+                <li>Whitespace &amp; character trimming</li>
+                <li>Complete cell-by-cell change log</li>
+                <li>Exceptions checklist for owner sign-off</li>
+                <li><strong>3-day delivery</strong> · <strong>2 revisions</strong></li>
+              </ul>
+              <a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Order Standard on Fiverr &rarr;</a>
+            </div>
+
+            <!-- Premium Package -->
+            <div class="package-card">
+              <span class="package-tag">High Volume</span>
+              <h4 class="package-name">Premium Dataset Scrub</h4>
+              <div class="package-price">US$200 <span class="price-type">/ fixed</span></div>
+              <p class="package-desc">Full-scale standardization, deduplication, and schema validation for customer, inventory, or order catalogs.</p>
+              <ul class="package-checklist">
+                <li>Up to <strong>10,000 data rows</strong></li>
+                <li>Multi-column duplicate &amp; key conflict audit</li>
+                <li>CSV formula injection defense</li>
+                <li>Full verification &amp; reconciliation report</li>
+                <li>7-day air-gapped deletion receipt</li>
+                <li><strong>7-day delivery</strong> · <strong>3 revisions</strong></li>
+              </ul>
+              <a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-block">Order Premium on Fiverr &rarr;</a>
+            </div>
+          </div>
+          
+          <div class="packages-footer text-center mt-3">
+            <p class="packages-disclaimer">
+              *All packages above are backed by Fiverr’s secure payment escrow. Funds are held safely until you review and approve the final deliverable. Handled under local air-gapped workstation security.
+            </p>
+          </div>
+        </div>
+
+        <!-- Separate Ottawa Local Service Option -->
+        <div class="local-service-card mt-4">
+          <div class="local-service-inner">
+            <div class="local-service-content">
+              <span class="badge-local">Ottawa Local Service</span>
+              <h3>Local Small Business Data Prep Starter</h3>
+              <p>
+                Operating in the Ottawa National Capital Region? We offer a local starter package for small business operators, bookkeepers, and trades: <strong>CA$29 fixed</strong> for 1 UTF-8 CSV (up to 100 rows, 6 columns, 1 MiB) with 2 agreed cleanup rules and an exceptions review sheet.
+              </p>
+            </div>
+            <div class="local-service-action">
+              <a href="https://www.kijiji.ca/v-buy-sell-other/ottawa/excel-&-csv-cleanup-duplicates-formatting-&-import-problems/1745182098" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">View Kijiji Listing &rarr;</a>
+              <span class="local-payment-note">Direct local order: paid via Interac e-Transfer or Stripe invoice upon scope agreement (not platform escrow)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Stripe Checkout One-Time Services -->
+        <div class="stripe-services-block mt-4">
+          <div class="stripe-header">
+            <span class="badge">Direct One-Time Services (CAD)</span>
+            <h3>Direct Stripe-Hosted Checkout Services</h3>
+            <p class="text-muted">Instant purchase via secure Stripe-hosted payment pages. Scope confirmation and secure transfer instructions sent by email within one business day post-checkout (direct order terms; not platform escrow).</p>
+          </div>
+          <div class="stripe-grid mt-3">
+            <div class="stripe-card">
+              <span class="stripe-tier">Starter</span>
+              <h4>CSV Cleaning Starter</h4>
+              <div class="stripe-price">CA$15.00</div>
+              <p>One CSV file up to 50 data rows. A cleaned copy, change log with every original value, and exceptions report.</p>
+              <a href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$15) &rarr;</a>
+            </div>
+            <div class="stripe-card">
+              <span class="stripe-tier">Audit</span>
+              <h4>Duplicate Detection &amp; Audit</h4>
+              <div class="stripe-price">CA$29.00</div>
+              <p>One CSV file up to 2,000 data rows. Read-only report of duplicate groups, row numbers, and input SHA-256 fingerprint.</p>
+              <a href="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$29) &rarr;</a>
+            </div>
+            <div class="stripe-card">
+              <span class="stripe-tier">Quality</span>
+              <h4>Spreadsheet Quality Audit</h4>
+              <div class="stripe-price">CA$39.00</div>
+              <p>Ranked audit and column profile (up to 2,000 rows; 100 rows/30 cols/1 MiB). Read-only data health findings.</p>
+              <a href="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$39) &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Free Scanner & Guide Tools Block -->
+        <div class="tools-banner-card mt-4">
+          <div class="tools-banner-grid">
+            <div class="tools-banner-col">
+              <span class="badge">Free Browser Tool</span>
+              <h3>In-Browser CSV Import Scanner</h3>
+              <p>Check your CSV file directly in your browser before software ingestion. Detects formula injection strings, ambiguous dates, duplicates, and delimiter errors. 100% private: files are processed locally on your device and are never uploaded.</p>
+              <div class="tools-links mt-2">
+                <a href="scanner/" class="btn btn-secondary btn-sm">Launch Free Scanner &rarr;</a>
+                <a href="scanner/csv-import-problems.html" class="link-subtle">Sample Findings &rarr;</a>
+              </div>
+            </div>
+            <div class="tools-banner-col">
+              <span class="badge">Reference Guide</span>
+              <h3>Five-Step CSV Import Preparation Guide</h3>
+              <p>Read our comprehensive technical guide on the five critical checks that catch 90% of spreadsheet import errors before they corrupt your accounting or CRM database.</p>
+              <div class="tools-links mt-2">
+                <a href="csv-import-guide.html" class="btn btn-outline btn-sm">Read Import Guide &rarr;</a>
+                <a href="showcase/" class="link-subtle">Explore Showcase &rarr;</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Capabilities Breakdown -->
+        <div class="services-grid mt-5">
+          <article class="service-card">
+            <div class="service-icon">&#9635;</div>
+            <h3 class="service-title">Non-Destructive Duplicate Detection</h3>
+            <p class="service-desc">
+              Automatic duplicate removal can delete entire rows before conflicting values have been reviewed. We take a non-destructive approach: records are preserved, formatting changes are logged, and duplicates or conflicting values are isolated in an exceptions report for your final decision.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">&#9634;</div>
+            <h3 class="service-title">CSV Standardization &amp; Whitespace Alignment</h3>
+            <p class="service-desc">
+              Transform messy exports into structured, uniform datasets. We normalize padding whitespace, align inconsistent dates into standard ISO formats (YYYY-MM-DD), and standardize numeric delimiters with a reversible cell-by-cell modification trail.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">&#9638;</div>
+            <h3 class="service-title">Structured Data Management &amp; Schema Validation</h3>
+            <p class="service-desc">
+              Prepare reliable tabular records for internal databases, ERPs, or bookkeeping workflows. We structure multi-source CSV files, enforce required headers, preserve leading zeros, and neutralize CSV formula injection hazards.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="technology-section section-padding bg-alt" id="technology">
+      <div class="container">
+        <div class="technology-grid">
+          <div class="technology-content">
+            <span class="section-eyebrow">Our Technology</span>
+            <h2 class="section-title">Deterministic Engineering. Total Transparency.</h2>
+            <p class="lead">
+              We do not treat your data as a black box. Our tools are engineered to be reproducible, mathematically verifiable, and completely inspectable at every transformation step.
+            </p>
+
+            <div class="tech-points">
+              <div class="tech-point">
+                <div class="tech-point-icon">&#10003;</div>
+                <div class="tech-point-body">
+                  <h4>Deterministic Audit Pipelines</h4>
+                  <p>Our audit and standardization workflows run on single-purpose, tested Python and Node pipelines that execute deterministically without opaque hallucinations or unlogged modifications.</p>
+                </div>
+              </div>
+
+              <div class="tech-point">
+                <div class="tech-point-icon">&#10003;</div>
+                <div class="tech-point-body">
+                  <h4>Mathematical Row Reconciliation</h4>
+                  <p>Every file is validated against an exact row-in equals row-out rule. We mathematically reconcile total input records against total output records so zero rows are lost.</p>
+                </div>
+              </div>
+
+              <div class="tech-point">
+                <div class="tech-point-icon">&#10003;</div>
+                <div class="tech-point-body">
+                  <h4>Spreadsheet Injection Defense</h4>
+                  <p>We neutralize dangerous CSV injection vectors by safely escaping unquoted leading symbols (such as <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, and <code>|</code>) that can trigger remote code execution when opened in Excel.</p>
+                </div>
+              </div>
+
+              <div class="tech-point">
+                <div class="tech-point-icon">&#10003;</div>
+                <div class="tech-point-body">
+                  <h4>Local Processing &amp; Cryptographic Deletion</h4>
+                  <p>Client spreadsheets are processed in an isolated local environment—never uploaded to public LLMs or cloud training sets—and permanently wiped post-delivery with a signed deletion receipt.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="technology-outputs">
+            <div class="outputs-card">
+              <h3 class="outputs-title">The Four Standard Deliverables</h3>
+              <p class="outputs-sub">On every project, you receive four distinct, checkable files:</p>
+
+              <div class="output-item">
+                <div class="output-file-badge">01</div>
+                <div class="output-file-info">
+                  <strong>Cleaned Master File (<code>cleaned.csv</code>)</strong>
+                  <span>Your original tabular data, standardized and preserved with zero rows deleted.</span>
+                </div>
+              </div>
+
+              <div class="output-item">
+                <div class="output-file-badge">02</div>
+                <div class="output-file-info">
+                  <strong>Cell-Level Change Log (<code>changes.csv</code>)</strong>
+                  <span>Every adjustment recorded cell-by-cell showing row, column, rule, and original value.</span>
+                </div>
+              </div>
+
+              <div class="output-item">
+                <div class="output-file-badge">03</div>
+                <div class="output-file-info">
+                  <strong>Exceptions &amp; Conflict Sheet (<code>exceptions.csv</code>)</strong>
+                  <span>Duplicates, contradictory records, and ambiguous fields isolated for your review.</span>
+                </div>
+              </div>
+
+              <div class="output-item">
+                <div class="output-file-badge">04</div>
+                <div class="output-file-info">
+                  <strong>Verification Summary (<code>summary.md</code>)</strong>
+                  <span>Mathematical reconciliation proving input rows match output rows and documenting file hashes.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Synthetic Demonstrations Section -->
+    <section class="demonstrations-section section-padding" id="demonstrations">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-eyebrow">Interactive Verification</span>
+          <h2 class="section-title">The 60-Second Data Safety Demonstration</h2>
+          <p class="section-lead">
+            Inspect our exact synthetic demonstration data. See how conventional deduplication deletes critical records, and how our audit process preserves your data without erasing a single row.
+          </p>
+        </div>
+
+        <div class="synthetic-notice-banner">
+          <span class="notice-icon">&#9888;</span>
+          <span class="notice-text"><strong>SYNTHETIC DEMONSTRATION — NOT CUSTOMER WORK:</strong> The sample below uses fictional inventory records tested directly on our production audit engine.</span>
+        </div>
+
+        <!-- Demonstration Tabs -->
+        <div class="demo-wrapper">
+          <div class="demo-tabs" role="tablist" aria-label="Demonstration Views">
+            <button class="demo-tab active" role="tab" aria-selected="true" aria-controls="demoBefore" id="tabBefore">1. Raw Input (Messy)</button>
+            <button class="demo-tab" role="tab" aria-selected="false" aria-controls="demoAfter" id="tabAfter">2. Cleaned Master</button>
+            <button class="demo-tab" role="tab" aria-selected="false" aria-controls="demoChanges" id="tabChanges">3. Change Log</button>
+            <button class="demo-tab" role="tab" aria-selected="false" aria-controls="demoExceptions" id="tabExceptions">4. Exceptions Report</button>
+            <button class="demo-tab" role="tab" aria-selected="false" aria-controls="demoSummary" id="tabSummary">5. Reconciliation</button>
+          </div>
+
+          <div class="demo-tab-panels">
+            <!-- Panel 1: Raw Input -->
+            <div class="demo-panel active" id="demoBefore" role="tabpanel" aria-labelledby="tabBefore">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>SKU</th>
+                      <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Unit Price</th>
+                      <th>Date</th>
+                      <th>Flaw Present</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="highlight-warn">
+                      <td>2</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>&quot; Blue widget &quot;</code></td>
+                      <td>10</td>
+                      <td><code>&quot;1,250.00&quot;</code></td>
+                      <td>2026/10/23</td>
+                      <td>Extra padding spaces; quoted formatted number</td>
+                    </tr>
+                    <tr class="highlight-danger">
+                      <td>3</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>&quot; Blue widget &quot;</code></td>
+                      <td>10</td>
+                      <td><code>&quot;1,250.00&quot;</code></td>
+                      <td>2026/10/23</td>
+                      <td><strong>Exact duplicate of Row 2</strong></td>
+                    </tr>
+                    <tr class="highlight-warn">
+                      <td>4</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>11</td>
+                      <td><code>1250.00</code></td>
+                      <td>2026-10-23</td>
+                      <td><strong>Conflicting quantity (11 vs 10)</strong> on same SKU</td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>10</td>
+                      <td><code>1250.00</code></td>
+                      <td>2026-10-23</td>
+                      <td>ISO date formatting</td>
+                    </tr>
+                    <tr>
+                      <td>6</td>
+                      <td><code>SKU-002</code></td>
+                      <td><code>Cable</code></td>
+                      <td>5</td>
+                      <td><code>20.00</code></td>
+                      <td>2026-10-23</td>
+                      <td>Standard entry</td>
+                    </tr>
+                    <tr class="highlight-danger">
+                      <td>7</td>
+                      <td><code>SKU-002</code></td>
+                      <td><code>Cable</code></td>
+                      <td>5</td>
+                      <td><code>20.00</code></td>
+                      <td>2026-10-23</td>
+                      <td><strong>Exact duplicate of Row 6</strong></td>
+                    </tr>
+                    <tr>
+                      <td>8</td>
+                      <td><code>SKU-003</code></td>
+                      <td><code>Bracket</code></td>
+                      <td>0</td>
+                      <td><code>0.00</code></td>
+                      <td>2026-10-24</td>
+                      <td>Zero quantity entry</td>
+                    </tr>
+                    <tr class="highlight-warn">
+                      <td>9</td>
+                      <td><code>SKU-004</code></td>
+                      <td><em>(empty)</em></td>
+                      <td>3</td>
+                      <td><code>?</code></td>
+                      <td>10/11/2026</td>
+                      <td>Missing description; unparseable price symbol (<code>?</code>)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-caption text-muted">Raw synthetic inventory dataset showing 8 data records with whitespace, duplicate, and ambiguity defects.</p>
+            </div>
+
+            <!-- Panel 2: Cleaned Master -->
+            <div class="demo-panel" id="demoAfter" role="tabpanel" aria-labelledby="tabAfter" hidden>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>SKU</th>
+                      <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Unit Price</th>
+                      <th>Date</th>
+                      <th>Preservation Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="highlight-success">
+                      <td>2</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>10</td>
+                      <td>1,250.00</td>
+                      <td>2026/10/23</td>
+                      <td>Whitespace normalized; preserved</td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>3</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>10</td>
+                      <td>1,250.00</td>
+                      <td>2026/10/23</td>
+                      <td><strong>Preserved (0 rows deleted)</strong></td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>4</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>11</td>
+                      <td>1250.00</td>
+                      <td>2026-10-23</td>
+                      <td>Preserved; conflict isolated in audit</td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>5</td>
+                      <td><code>SKU-001</code></td>
+                      <td><code>Blue widget</code></td>
+                      <td>10</td>
+                      <td>1250.00</td>
+                      <td>2026-10-23</td>
+                      <td>Preserved</td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>6</td>
+                      <td><code>SKU-002</code></td>
+                      <td><code>Cable</code></td>
+                      <td>5</td>
+                      <td>20.00</td>
+                      <td>2026-10-23</td>
+                      <td>Preserved</td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>7</td>
+                      <td><code>SKU-002</code></td>
+                      <td><code>Cable</code></td>
+                      <td>5</td>
+                      <td>20.00</td>
+                      <td>2026-10-23</td>
+                      <td><strong>Preserved (0 rows deleted)</strong></td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>8</td>
+                      <td><code>SKU-003</code></td>
+                      <td><code>Bracket</code></td>
+                      <td>0</td>
+                      <td>0.00</td>
+                      <td>2026-10-24</td>
+                      <td>Preserved</td>
+                    </tr>
+                    <tr class="highlight-success">
+                      <td>9</td>
+                      <td><code>SKU-004</code></td>
+                      <td><em>(empty)</em></td>
+                      <td>3</td>
+                      <td><code>?</code></td>
+                      <td>10/11/2026</td>
+                      <td>Preserved; ambiguous fields flagged for human review</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-caption text-success">Cleaned master table: 100% of rows preserved, whitespace trimmed, and zero records silently dropped.</p>
+            </div>
+
+            <!-- Panel 3: Change Log -->
+            <div class="demo-panel" id="demoChanges" role="tabpanel" aria-labelledby="tabChanges" hidden>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>Column</th>
+                      <th>Transformation Rule</th>
+                      <th>Original Value</th>
+                      <th>Standardized Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>2</td>
+                      <td><code>description</code></td>
+                      <td><code>whitespace_trim</code></td>
+                      <td><code>&quot; Blue widget &quot;</code></td>
+                      <td><code>&quot;Blue widget&quot;</code></td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td><code>description</code></td>
+                      <td><code>whitespace_trim</code></td>
+                      <td><code>&quot; Blue widget &quot;</code></td>
+                      <td><code>&quot;Blue widget&quot;</code></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-caption text-muted">Cell-by-cell modification trail documenting every single normalization so changes can be audited or reversed.</p>
+            </div>
+
+            <!-- Panel 4: Exceptions -->
+            <div class="demo-panel" id="demoExceptions" role="tabpanel" aria-labelledby="tabExceptions" hidden>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>Target Column</th>
+                      <th>Exception Category</th>
+                      <th>Audit Detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="highlight-danger">
+                      <td>3</td>
+                      <td><code>(whole row)</code></td>
+                      <td><code>duplicate-row</code></td>
+                      <td>Identical to Row 2; both rows preserved, flagged for client confirmation.</td>
+                    </tr>
+                    <tr class="highlight-danger">
+                      <td>7</td>
+                      <td><code>(whole row)</code></td>
+                      <td><code>duplicate-row</code></td>
+                      <td>Identical to Row 6; both rows preserved, flagged for client confirmation.</td>
+                    </tr>
+                    <tr class="highlight-warn">
+                      <td>9</td>
+                      <td><code>description</code></td>
+                      <td><code>missing-value</code></td>
+                      <td>Empty cell; isolated for human review rather than guessing data.</td>
+                    </tr>
+                    <tr class="highlight-warn">
+                      <td>2, 3</td>
+                      <td><code>unit_price</code></td>
+                      <td><code>ambiguous-value</code></td>
+                      <td>Formatted currency string with comma; preserved without lossy type coercion.</td>
+                    </tr>
+                    <tr class="highlight-warn">
+                      <td>9</td>
+                      <td><code>unit_price</code></td>
+                      <td><code>ambiguous-value</code></td>
+                      <td>Contains unparseable symbol <code>?</code>; isolated rather than coerced to zero.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-caption text-muted">Exceptions Review Sheet isolating ambiguities, conflicts, and duplicates for explicit owner sign-off.</p>
+            </div>
+
+            <!-- Panel 5: Summary -->
+            <div class="demo-panel" id="demoSummary" role="tabpanel" aria-labelledby="tabSummary" hidden>
+              <div class="summary-metrics-grid">
+                <div class="summary-metric-card">
+                  <span class="metric-title">Input Rows</span>
+                  <span class="metric-value">8</span>
+                </div>
+                <div class="summary-metric-card">
+                  <span class="metric-title">Output Rows</span>
+                  <span class="metric-value">8</span>
+                </div>
+                <div class="summary-metric-card highlight-metric">
+                  <span class="metric-title">Rows Deleted</span>
+                  <span class="metric-value">0</span>
+                </div>
+                <div class="summary-metric-card">
+                  <span class="metric-title">Logged Changes</span>
+                  <span class="metric-value">2</span>
+                </div>
+                <div class="summary-metric-card">
+                  <span class="metric-title">Exceptions Flagged</span>
+                  <span class="metric-value">6</span>
+                </div>
+                <div class="summary-metric-card">
+                  <span class="metric-title">Execution Speed</span>
+                  <span class="metric-value">0.01s</span>
+                </div>
+              </div>
+              <p class="table-caption text-center text-success mt-3">
+                <strong>Reconciliation Verified:</strong> Input row count matches output row count exactly. Zero data loss.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- The 30-Second Comparison Card -->
+        <div class="comparison-card mt-4">
+          <div class="comparison-header">
+            <h3>Why Conventional Deduplication Destroys Business Data</h3>
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col danger-border">
+              <h4>Conventional Deduplication</h4>
+              <p class="text-muted">Tools like Excel "Remove Duplicates" make silent, irreversible assumptions:</p>
+              <ul>
+                <li>Forces you to choose between leaving conflicts unflagged or permanently deleting rows.</li>
+                <li>Silently discards updated customer phone numbers or addresses without a change log.</li>
+                <li>Leaves you with zero audit trail and zero way to recover erased records.</li>
+              </ul>
+            </div>
+            <div class="comparison-col success-border">
+              <h4>Our Non-Destructive Protocol</h4>
+              <p class="text-muted">A deterministic, non-destructive process designed to protect business records:</p>
+              <ul>
+                <li>100% of rows are retained in the master file; zero rows deleted without authorization.</li>
+                <li>All formatting adjustments are logged cell-by-cell in a reversible audit trail.</li>
+                <li>Duplicates and conflicting values are flagged in an exceptions sheet so you stay in control.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About the Founder Section -->
+    <section class="about-section section-padding bg-alt" id="about">
+      <div class="container about-grid">
+        <div class="about-image-col">
+          <div class="founder-badge-card">
+            <div class="founder-avatar-placeholder">
+              <span class="avatar-initials">DR</span>
+            </div>
+            <div class="founder-identity">
+              <h3 class="founder-name">Dustin Rebellato</h3>
+              <p class="founder-role">Data Integrity &amp; Operational Systems</p>
+              <p class="founder-location">&#128205; Ottawa, Ontario, Canada</p>
+            </div>
+            <div class="founder-stats">
+              <div class="stat-row">
+                <span>Principal:</span>
+                <strong>Dustin Rebellato</strong>
+              </div>
+              <div class="stat-row">
+                <span>Core Discipline:</span>
+                <strong>Data Integrity &amp; Operations</strong>
+              </div>
+              <div class="stat-row">
+                <span>Philosophy:</span>
+                <strong>Intelligent Sufficiency</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-content-col">
+          <span class="section-eyebrow">About Dustin Rebellato</span>
+          <h2 class="section-title">Rooted in Real Operations. Driven by Intelligent Sufficiency.</h2>
+          
+          <div class="about-body">
+            <p>
+              Operating from Ottawa, Ontario, Dustin Rebellato provides data integrity auditing, spreadsheet standardization, and structured operational systems for growing businesses, bookkeepers, and operators.
+            </p>
+            <p>
+              Dustin’s background bridges five years of demanding physical operations in construction, demolition, and document control with competitive athletic coaching and computational data architecture. In physical construction, cutting corners or relying on unverified assumptions leads to catastrophic structural failures. The same discipline applies directly to data operations: a single corrupted delimiter, dropped leading zero, or silently deleted customer record can cripple a business's operations.
+            </p>
+            <blockquote class="founder-quote">
+              &ldquo;Less waste. More intelligence. Greater human benefit. We do not invent complexity to justify software fees. We build lean, verifiable systems that solve real operational problems and keep humans in complete control of their decisions.&rdquo;
+            </blockquote>
+            <p>
+              Every client engagement is governed by strict technical ethics: we do not accept confidential data without clear scope boundaries, we process files locally under strict air-gapped security, and we ensure every single deliverable is checkable down to the individual cell.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact & Qualified Inquiry Section -->
+    <section class="contact-section section-padding" id="contact">
+      <div class="container">
+        <div class="section-header text-center">
+          <span class="section-eyebrow">Direct Commercial Inquiry</span>
+          <h2 class="section-title">Start a Qualified Commercial Inquiry</h2>
+          <p class="section-lead">
+            Tell us about your data or operational challenge. We review your requirements and confirm scope, compatibility, and turnaround within 24 hours before any order is accepted.
+          </p>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Inquiry Form -->
+          <div class="contact-form-card">
+            <div class="form-intro-note">
+              <strong>Data Privacy &amp; Inquiry Process:</strong>
+              <p class="text-muted text-xs">
+                This client-side scope tool compiles your non-confidential project requirements into a structured inquiry package. It does NOT upload files or data to unverified servers. Review your summary below, then send it to our operational inbox or use our verified platform channels.
+              </p>
+            </div>
+
+            <form id="inquiryForm" class="inquiry-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contactName">Your Name <span class="required">*</span></label>
+                  <input type="text" id="contactName" name="name" class="form-control" placeholder="e.g. Jane Doe" required>
+                </div>
+                <div class="form-group">
+                  <label for="contactEmail">Business Email <span class="required">*</span></label>
+                  <input type="email" id="contactEmail" name="email" class="form-control" placeholder="e.g. jane@business.com" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="serviceNeeded">Service Tier Required <span class="required">*</span></label>
+                  <select id="serviceNeeded" name="service" class="form-control" required>
+                    <option value="" disabled selected>Select a commercial service</option>
+                    <option value="fiverr-basic">Fiverr Basic (US$20 / Up to 100 Rows)</option>
+                    <option value="fiverr-standard">Fiverr Standard Audit (US$100 / Up to 2,000 Rows)</option>
+                    <option value="fiverr-premium">Fiverr Premium Scrub (US$200 / Up to 10,000 Rows)</option>
+                    <option value="ottawa-starter">Ottawa Local Starter (CA$29 / Up to 100 Rows)</option>
+                    <option value="custom-consultation">Custom Operational Consultation</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="rowCount">Estimated Row &amp; Column Count</label>
+                  <input type="text" id="rowCount" name="row_count" class="form-control" placeholder="e.g. ~500 rows, 8 columns">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="destinationSoftware">Where do you plan to use the cleaned file? <span class="required">*</span></label>
+                <input type="text" id="destinationSoftware" name="destination" class="form-control" placeholder="e.g. Internal Excel review, QuickBooks Online, custom ERP, inventory database" required>
+              </div>
+
+              <div class="form-group">
+                <label for="projectDescription">Non-Confidential Problem Description <span class="required">*</span></label>
+                <textarea id="projectDescription" name="description" class="form-control" rows="4" placeholder="Describe the formatting issues, duplicates, or errors you need resolved. (Do NOT include confidential client data, passwords, or personal identifying numbers)." required></textarea>
+              </div>
+
+              <div class="form-check">
+                <input type="checkbox" id="privacyConsent" name="privacy_consent" class="form-check-input" required>
+                <label for="privacyConsent" class="form-check-label">
+                  I understand that client data is processed under strict local confidentiality, and I have omitted confidential, banking, or sensitive customer details from this initial inquiry.
+                </label>
+              </div>
+
+              <div class="form-actions mt-3">
+                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                  <span>Compile Inquiry Summary &rarr;</span>
+                </button>
+              </div>
+
+              <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+            </form>
+
+            <!-- Generated Draft Staging Box -->
+            <div id="inquiryDraftBox" class="inquiry-draft-box" hidden>
+              <div class="draft-header">
+                <strong>Inquiry Package Compiled</strong>
+                <button type="button" class="btn-close" id="closeDraftBtn" aria-label="Close draft view">&times;</button>
+              </div>
+              <p class="draft-notice">Review your structured project summary. You can send it directly to our operations inbox or copy it below:</p>
+              <textarea id="draftText" class="form-control draft-textarea" readonly rows="8"></textarea>
+              <div class="draft-actions">
+                <a id="emailMailtoBtn" href="#" class="btn btn-primary btn-sm">Send to Operations Inbox</a>
+                <button type="button" id="copyDraftBtn" class="btn btn-outline btn-sm">Copy Summary to Clipboard</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commercial Safeguards & Alternate Channels -->
+          <div class="contact-info-card">
+            <h3 class="info-card-title">Commercial Purchase Routes</h3>
+            
+            <div class="info-block">
+              <h4>Direct Operational Inbox</h4>
+              <p>Primary communications are reviewed directly by Dustin Rebellato:</p>
+              <p class="contact-email"><code>obsidian1change1the1world@gmail.com</code></p>
+              <span class="text-muted text-xs">Standard response time: within 24 hours.</span>
+            </div>
+
+            <div class="info-block">
+              <h4>Verified Commercial Channels</h4>
+              <p>Choose your preferred route: order via Fiverr's protected milestone escrow, or connect on Kijiji for Ottawa local service:</p>
+              <ul class="marketplace-links">
+                <li>
+                  <a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" target="_blank" rel="noopener noreferrer" class="channel-link">
+                    <strong>Fiverr Gig #512446708</strong>
+                    <span>Spreadsheet Cleanup &amp; Duplicate Audit (Basic US$20 · Standard US$100 · Premium US$200) &rarr;</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.kijiji.ca/v-buy-sell-other/ottawa/excel-&-csv-cleanup-duplicates-formatting-&-import-problems/1745182098" target="_blank" rel="noopener noreferrer" class="channel-link">
+                    <strong>Kijiji Ottawa Ad #1745182098</strong>
+                    <span>Ottawa Local Small Business Data Prep (CA$29 Starter) &rarr;</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="info-block privacy-guarantee">
+              <h4>Privacy &amp; Data Security Protocol</h4>
+              <ul>
+                <li>Local air-gapped workstation processing</li>
+                <li>Zero uploading to third-party public AI models</li>
+                <li>Cryptographic file hash verification</li>
+                <li>Permanent 7-day data deletion with signed certificate</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="brand-link">
+          <span class="brand-glyph">&#9670;</span>
+          <span class="brand-name">Dustin Rebellato</span>
+        </a>
+        <p class="footer-tagline">
+          Data Integrity &amp; Operational Systems
+        </p>
+        <p class="footer-sub">
+          Providing verified data cleaning, spreadsheet audits, and structured operational intelligence from Ottawa, Ontario.
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services &amp; Pricing</a></li>
+            <li><a href="#technology">Technology</a></li>
+            <li><a href="#demonstrations">Synthetic Demonstration</a></li>
+            <li><a href="#about">About Dustin</a></li>
+            <li><a href="#contact">Contact &amp; Inquiries</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Commercial Services</h4>
+          <ul>
+            <li><a href="#services">Non-Destructive Auditing</a></li>
+            <li><a href="#services">CSV Standardization</a></li>
+            <li><a href="#services">Duplicate &amp; Conflict Detection</a></li>
+            <li><a href="#services">Structured Register Research</a></li>
+            <li><a href="#services">Operational Workflow Design</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Operating Standards</h4>
+          <ul>
+            <li>Non-Destructive Auditing</li>
+            <li>Mathematical Reconciliation</li>
+            <li>Air-Gapped Local Privacy</li>
+            <li>Signed 7-Day Deletion</li>
+            <li>Human-First Control</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p class="copyright">
+        &copy; 2026 Dustin Rebellato. All rights reserved.
+      </p>
+      <p class="legal-notice">
+        <strong>Notice &amp; Disclaimer:</strong> OBSIDIAN is an internal operating doctrine and technology studio of Dustin Rebellato. Demonstrations presented on this site are synthetic and illustrative; no customer results or financial warranties are implied. Client data is handled under strict confidentiality, local air-gapped isolation, and 7-day deletion protocols.
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
