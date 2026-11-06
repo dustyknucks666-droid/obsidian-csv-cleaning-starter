@@ -7,6 +7,16 @@
   <meta name="referrer" content="no-referrer">
   <meta name="description" content="Free CSV checker that runs entirely in your browser. Find duplicate IDs, conflicting records, missing values, unreadable dates and numbers, spreadsheet formula risks and import problems, then download a report.">
   <meta name="theme-color" content="#f5f7f4">
+    <link rel="canonical" href="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/scanner/">
+  <meta property="og:title" content="Free CSV Data Rescue Scanner — In-Browser Spreadsheet Check">
+  <meta property="og:description" content="Check a CSV export locally in your browser for duplicate IDs, conflicting records, date errors, and formatting risks with zero data uploads.">
+  <meta property="og:url" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/scanner/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/showcase/media/promo-thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free CSV Data Rescue Scanner">
+  <meta name="twitter:description" content="Local, in-browser CSV diagnostic tool for spreadsheets and imports.">
+  <meta name="twitter:image" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/showcase/media/promo-thumbnail.png">
   <title>Free CSV Data Rescue Scanner - check a CSV for import problems in your browser</title>
   <style>
 :root {
@@ -88,6 +98,20 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
 </head>
 <body>
 <a class="skip-link" href="#scan">Skip to the scanner</a>
+<div style="background:var(--card); border-bottom:1px solid var(--line); padding:0.75rem 1rem; font-size:0.95rem;">
+  <div style="max-width:64rem; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+    <a href="../index.html" style="color:var(--accent); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem;">
+      <span style="font-size:1.1rem;">&#9670;</span> Dustin Rebellato Commercial Headquarters
+    </a>
+    <div style="display:flex; gap:1.25rem; flex-wrap:wrap;">
+      <a href="../index.html#services" style="color:var(--muted); text-decoration:none; font-weight:550;">Services &amp; Pricing</a>
+      <a href="../csv-import-guide.html" style="color:var(--muted); text-decoration:none; font-weight:550;">CSV Import Guide</a>
+      <a href="../showcase/" style="color:var(--muted); text-decoration:none; font-weight:550;">Synthetic Audit Proof</a>
+      <a href="../index.html#contact" style="color:var(--accent); text-decoration:none; font-weight:600;">Contact / Inquire &rarr;</a>
+    </div>
+  </div>
+</div>
+
 <main class="page" id="top">
   <h1>Free CSV Data Rescue Scanner</h1>
   <p class="lede">Check a CSV export for the problems that break imports and reports: duplicate IDs, conflicting records, missing values, unreadable dates and numbers, spreadsheet formula risks and more. Every basic finding is free, with row numbers and a downloadable report.</p>
@@ -116,6 +140,15 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
   <section id="results" aria-labelledby="results-title" hidden>
     <h2 id="results-title" tabindex="-1">Results</h2>
     <ul class="summary" id="summary"></ul>
+        <div style="background:#eef6f2; border:1px solid var(--accent); border-radius:0.75rem; padding:1.25rem; margin:1.5rem 0;">
+      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.15rem;">What happens when you find conflicting records?</h3>
+      <p style="margin-bottom:0.75rem; font-size:0.95rem; color:var(--ink);">
+        Standard Excel deduplication permanently deletes conflicting rows. Our non-destructive protocol retains 100% of rows in a verified master while logging every conflicting attribute in an exception report.
+      </p>
+      <a href="../showcase/" class="button secondary" style="min-height:2.4rem; padding:0.4rem 0.9rem; font-size:0.9rem;">Watch 60-Second Video Demonstration &rarr;</a>
+      <a href="#repair" class="button" style="min-height:2.4rem; padding:0.4rem 0.9rem; font-size:0.9rem; margin-left:0.5rem;">See Repair Packages &darr;</a>
+    </div>
+
     <div class="actions">
       <button type="button" id="download-report">Download report (.md)</button>
       <button type="button" class="secondary" id="download-csv">Download findings (.csv)</button>
@@ -131,16 +164,46 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
     <h2 id="repair-title">Want the problems repaired for you?</h2>
     <p>The scan is free and stays free. If you would rather have the file cleaned and checked by a person, the existing Fiverr service covers it. Scope is confirmed before you order; nothing here is a quote, and no service can guarantee that another system will accept an import.</p>
     <div class="offer-grid">
-      <article class="offer-card">
-        <h3>One CSV, cleaned and checked</h3>
+            <article class="offer-card">
+        <span class="sev low" style="margin-bottom:0.5rem;">Protected Escrow</span>
+        <h3>Fiverr Verified Service</h3>
         <p class="price">From US$20 on Fiverr</p>
         <ul>
-          <li>Basic: one CSV up to 100 rows, 3-day delivery, 1 revision.</li>
-          <li>Larger packages: US$100 for up to 2,000 rows, US$200 for up to 10,000 rows.</li>
-          <li>You receive the cleaned CSV, a change log, an exceptions sheet, a summary and a verification report. Duplicates are flagged, never silently deleted.</li>
+          <li><strong>Basic (US$20):</strong> One CSV up to 100 rows, 3-day delivery, 1 revision.</li>
+          <li><strong>Standard (US$100):</strong> Up to 2,000 rows.</li>
+          <li><strong>Premium (US$200):</strong> Up to 10,000 rows.</li>
+          <li>Includes cleaned CSV, cell change log, exception report, and reconciliation summary.</li>
         </ul>
-        <p class="note">Fiverr may show a converted price and buyer fees; check the total there before ordering. You can message the seller on Fiverr before ordering.</p>
-        <a class="button" id="buy-fiverr" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank">View the Fiverr service</a>
+        <p class="note">Protected marketplace milestone escrow. Message before ordering.</p>
+        <a class="button" id="buy-fiverr" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank" style="width:100%;">Order via Fiverr &rarr;</a>
+      </article>
+
+      <article class="offer-card">
+        <span class="sev medium" style="margin-bottom:0.5rem;">Direct Checkout</span>
+        <h3>Stripe Hosted Audit</h3>
+        <p class="price">From CA$15 &ndash; CA$39</p>
+        <ul>
+          <li><strong>CA$15 CSV Starter:</strong> Cleaned file + change log (up to 50 rows).</li>
+          <li><strong>CA$29 Duplicate Audit:</strong> Duplicate &amp; conflict detection (up to 2,000 rows).</li>
+          <li><strong>CA$39 Quality Audit:</strong> Full ranked quality audit (up to 100 rows, 30 cols, 1 MiB).</li>
+          <li>Instant hosted credit/debit checkout powered by Stripe.</li>
+        </ul>
+        <p class="note">Direct purchase route with scope confirmation before work commences.</p>
+        <a class="button secondary" href="../index.html#services" style="width:100%; border-color:var(--accent);">View Stripe Checkout Options &rarr;</a>
+      </article>
+
+      <article class="offer-card">
+        <span class="sev high" style="margin-bottom:0.5rem;">Local Service</span>
+        <h3>Ottawa Small Business Prep</h3>
+        <p class="price">CA$29 Fixed (Kijiji)</p>
+        <ul>
+          <li><strong>CA$29 Starter:</strong> One UTF-8 CSV up to 100 rows, 6 columns, 1 MiB.</li>
+          <li>Up to two agreed cleanup/standardization rules.</li>
+          <li>One scoped correction round with signed 7-day data deletion receipt.</li>
+          <li>Direct founder review in Ottawa, Ontario.</li>
+        </ul>
+        <p class="note">Local classified listing verified for Ottawa &amp; Eastern Ontario.</p>
+        <a class="button secondary" href="https://www.kijiji.ca/v-buy-sell-other/ottawa/excel-&-csv-cleanup-duplicates-formatting-&-import-problems/1745182098" rel="noopener noreferrer" target="_blank" style="width:100%;">View Kijiji Ottawa Listing &rarr;</a>
       </article>
     </div>
   </section>
@@ -167,6 +230,16 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
   <footer>
     <p>"Data Rescue Scanner" is a descriptive working title, not a registered trademark. The scanner reports what it can detect mechanically; it does not change your file. Findings are a starting point for review, not a guarantee that a file is correct or will import.</p>
   </footer>
+  <section style="margin-top:2.5rem; border-top:1px solid var(--line); padding-top:1.5rem;">
+    <h3>Technical Guides &amp; Educational Resources</h3>
+    <ul style="margin:0.5rem 0 1.5rem; padding-left:1.5rem;">
+      <li><a href="../articles/duplicate-removal-risks.html">Why Removing Duplicate Spreadsheet Rows Can Destroy Important Customer Information</a></li>
+      <li><a href="../articles/five-csv-import-problems.html">Five CSV Import Problems That Cause Silent Business Data Errors</a></li>
+      <li><a href="../articles/shopify-inventory-audit.html">How to Audit a Shopify Product Export Before Importing Inventory Changes</a></li>
+      <li><a href="../csv-import-guide.html">Five-Step CSV Import Preparation Guide (with Stripe Checkout Routes)</a></li>
+    </ul>
+  </section>
+
 </main>
 
 <script type="text/csv" id="sample-csv">

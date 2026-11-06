@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Audit a Shopify Product Export Before Importing Inventory Changes — Dustin Rebellato</title>
+  <meta name="description" content="A practical pre-import checklist for Shopify store owners and catalog managers to prevent inventory overwrites, variant split errors, and pricing bugs.">
+  <link rel="canonical" href="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/shopify-inventory-audit.html">
+  <meta property="og:title" content="How to Audit a Shopify Product Export Before Importing Inventory Changes">
+  <meta property="og:description" content="A practical pre-import checklist for Shopify store owners and catalog managers to prevent inventory overwrites and catalog errors.">
+  <meta property="og:url" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/shopify-inventory-audit.html">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/showcase/media/promo-thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 90,50 50,90 10,50' fill='%23176b58'/></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "How to Audit a Shopify Product Export Before Importing Inventory Changes",
+    "description": "Step-by-step checklist for ecommerce catalog operators to validate variant handles, SKUs, inventory policy, and pricing before running bulk CSV imports in Shopify.",
+    "author": {
+      "@type": "Person",
+      "name": "Dustin Rebellato",
+      "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/#about"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Dustin Rebellato Commercial Systems",
+      "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/"
+    },
+    "datePublished": "2026-11-06",
+    "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/shopify-inventory-audit.html"
+  }
+  </script>
+  <style>
+    .article-wrap { max-width: 820px; margin: 0 auto; padding: 2.5rem 1rem 5rem; }
+    .article-header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; }
+    .article-meta { font-size: 0.95rem; color: var(--text-muted); margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .article-body { font-size: 1.1rem; line-height: 1.75; color: var(--text-main); }
+    .article-body h2 { margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-heading); font-size: 1.5rem; }
+    .article-body p { margin-bottom: 1.4rem; }
+    .article-body ul, .article-body ol { margin-bottom: 1.5rem; padding-left: 1.8rem; }
+    .callout-box { background: var(--bg-alt); border-left: 4px solid var(--primary-accent); padding: 1.5rem; border-radius: 6px; margin: 2rem 0; }
+    .nav-breadcrumbs { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .nav-breadcrumbs a { color: var(--primary-accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../#home" class="brand-link">
+        <span class="brand-glyph">&#9670;</span>
+        <span class="brand-name">Dustin Rebellato</span>
+      </a>
+      <nav class="site-nav">
+        <ul class="nav-list">
+          <li><a href="../#home" class="nav-link">Home</a></li>
+          <li><a href="../#services" class="nav-link">Services</a></li>
+          <li><a href="../scanner/" class="nav-link">Free Scanner</a></li>
+          <li><a href="../csv-import-guide.html" class="nav-link">Import Guide</a></li>
+          <li><a href="../#contact" class="btn btn-sm btn-primary">Inquiries</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="article-wrap">
+    <div class="nav-breadcrumbs">
+      <a href="../#home">&larr; Commercial Headquarters</a> / <a href="../#services">Resources</a> / Technical Articles
+    </div>
+
+    <header class="article-header">
+      <span class="badge">Ecommerce Operations</span>
+      <h1 class="hero-title" style="font-size: clamp(2rem, 4vw, 2.8rem); margin-top: 1rem;">
+        How to Audit a Shopify Product Export Before Importing Inventory Changes
+      </h1>
+      <div class="article-meta">
+        <span>By <strong>Dustin Rebellato</strong></span>
+        <span>Operational Checklist</span>
+        <span>Reading time: ~5 minutes</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p>
+        Updating products and inventory in Shopify using CSV exports is fast, but it carries high operational risk. A single misplaced column header or broken variant handle can accidentally split your product catalog into hundreds of orphaned listings or wipe out stock quantities across live sales channels.
+      </p>
+      <p>
+        Before you upload your edited CSV and click <em>"Overwrite any current products that have the same handle,"</em> perform this five-point pre-import audit.
+      </p>
+
+      <h2>1. The Handle Integrity Rule</h2>
+      <p>
+        In Shopify's schema, the <code>Handle</code> column is the master primary key grouping all variants of a product together:
+      </p>
+      <ul>
+        <li>The first row of a product must contain the <code>Handle</code>, <code>Title</code>, and base product attributes.</li>
+        <li>Subsequent variant rows for that same product <strong>must keep the exact same Handle</strong>, but should leave <code>Title</code>, <code>Body (HTML)</code>, and <code>Vendor</code> blank.</li>
+        <li>If a spreadsheet sort accidentally disconnects variant rows from their Handle, Shopify will treat each orphan row as an entirely separate standalone product or reject the file completely.</li>
+      </ul>
+
+      <h2>2. Variant SKU Uniqueness</h2>
+      <p>
+        While Shopify technically permits duplicate SKUs, modern inventory tracking systems, shipping integrations (e.g. ShipStation), and POS systems break when multiple products share an identical SKU. Verify that every distinct variant carries a unique identifier.
+      </p>
+
+      <h2>3. Decimal Precision & Currency Formatting</h2>
+      <p>
+        Check the <code>Variant Price</code> and <code>Variant Compare At Price</code> columns:
+      </p>
+      <ul>
+        <li>Remove all currency symbols (<code>$</code>, <code>CAD</code>, <code>USD</code>). Shopify requires pure numbers (e.g., <code>29.99</code>).</li>
+        <li>Ensure decimal separators are periods (<code>.</code>), not European commas (<code>,</code>). An item intended to sell for <code>$24.50</code> entered as <code>24,50</code> can import as <code>$2,450.00</code> or trigger a schema validation error.</li>
+      </ul>
+
+      <h2>4. Inventory Tracker & Policy Settings</h2>
+      <p>
+        If you track inventory in Shopify, confirm:
+      </p>
+      <ul>
+        <li><code>Variant Inventory Tracker</code> is set to <code>shopify</code> (all lowercase).</li>
+        <li><code>Variant Inventory Policy</code> is set to either <code>deny</code> (stop selling when out of stock) or <code>continue</code>.</li>
+        <li>Never leave these fields partially populated across variants of the same product.</li>
+      </ul>
+
+      <h2>5. Protect Body HTML from Delimiter Collisions</h2>
+      <p>
+        Product descriptions in the <code>Body (HTML)</code> column frequently contain raw HTML tags, inline styling, quotes, and commas. If your export/edit software doesn't properly escape inner quotation marks (<code>""</code>), the text will spill across adjacent columns and corrupt the whole file.
+      </p>
+
+      <div class="callout-box">
+        <h4>Need a Pre-Import Audit & Change Verification?</h4>
+        <p>
+          Run your Shopify CSV through our Free In-Browser Scanner to catch delimiter problems, duplicate SKUs, and encoding errors before uploading.
+        </p>
+        <p style="margin-bottom:0;">
+          <a href="../scanner/" class="btn btn-sm btn-primary">Scan Your Shopify CSV Free &rarr;</a>
+          <a href="../#services" class="btn btn-sm btn-outline" style="margin-left:0.5rem;">Explore Audit Services &rarr;</a>
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Dustin Rebellato. Operating from Ottawa, Ontario. <a href="../#home" style="color:var(--text-muted);">Back to Homepage</a></p>
+    </div>
+  </footer>
+</body>
+</html>

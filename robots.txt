@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://eventhorizon6.github.io/obsidian-csv-cleaning-starter/sitemap.xml
+Sitemap: https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/sitemap.xml

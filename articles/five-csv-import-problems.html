@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Five CSV Import Problems That Cause Silent Business Data Errors — Dustin Rebellato</title>
+  <meta name="description" content="Explore the five most prevalent CSV defects that corrupt imports in ERPs, CRMs, and ecommerce platforms: leading zero loss, date transposition, delimiter collisions, and encoding errors.">
+  <link rel="canonical" href="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/five-csv-import-problems.html">
+  <meta property="og:title" content="Five CSV Import Problems That Cause Silent Business Data Errors">
+  <meta property="og:description" content="Explore the five most prevalent CSV defects that corrupt imports in ERPs, CRMs, and ecommerce platforms.">
+  <meta property="og:url" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/five-csv-import-problems.html">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/showcase/media/promo-thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 90,50 50,90 10,50' fill='%23176b58'/></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Five CSV Import Problems That Cause Silent Business Data Errors",
+    "description": "A technical guide examining unescaped multi-line text, dropped leading zeroes, date format ambiguity, character encoding corruption, and numeric ID scientific notation.",
+    "author": {
+      "@type": "Person",
+      "name": "Dustin Rebellato",
+      "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/#about"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Dustin Rebellato Commercial Systems",
+      "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/"
+    },
+    "datePublished": "2026-11-06",
+    "url": "https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/five-csv-import-problems.html"
+  }
+  </script>
+  <style>
+    .article-wrap { max-width: 820px; margin: 0 auto; padding: 2.5rem 1rem 5rem; }
+    .article-header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; }
+    .article-meta { font-size: 0.95rem; color: var(--text-muted); margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .article-body { font-size: 1.1rem; line-height: 1.75; color: var(--text-main); }
+    .article-body h2 { margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-heading); font-size: 1.5rem; }
+    .article-body p { margin-bottom: 1.4rem; }
+    .article-body ul, .article-body ol { margin-bottom: 1.5rem; padding-left: 1.8rem; }
+    .callout-box { background: var(--bg-alt); border-left: 4px solid var(--primary-accent); padding: 1.5rem; border-radius: 6px; margin: 2rem 0; }
+    .nav-breadcrumbs { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .nav-breadcrumbs a { color: var(--primary-accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="../#home" class="brand-link">
+        <span class="brand-glyph">&#9670;</span>
+        <span class="brand-name">Dustin Rebellato</span>
+      </a>
+      <nav class="site-nav">
+        <ul class="nav-list">
+          <li><a href="../#home" class="nav-link">Home</a></li>
+          <li><a href="../#services" class="nav-link">Services</a></li>
+          <li><a href="../scanner/" class="nav-link">Free Scanner</a></li>
+          <li><a href="../csv-import-guide.html" class="nav-link">Import Guide</a></li>
+          <li><a href="../#contact" class="btn btn-sm btn-primary">Inquiries</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="article-wrap">
+    <div class="nav-breadcrumbs">
+      <a href="../#home">&larr; Commercial Headquarters</a> / <a href="../#services">Resources</a> / Technical Articles
+    </div>
+
+    <header class="article-header">
+      <span class="badge">Import Engineering</span>
+      <h1 class="hero-title" style="font-size: clamp(2rem, 4vw, 2.8rem); margin-top: 1rem;">
+        Five CSV Import Problems That Cause Silent Business Data Errors
+      </h1>
+      <div class="article-meta">
+        <span>By <strong>Dustin Rebellato</strong></span>
+        <span>Technical Guide</span>
+        <span>Reading time: ~6 minutes</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+      <p>
+        The comma-separated values (CSV) format remains the global lingua franca of business data transfer. Inventory catalogs, bookkeeping entries, customer records, and banking logs are constantly exported and imported in CSV format.
+      </p>
+      <p>
+        Yet because CSV is an unstandardized, untyped plain-text representation (despite RFC 4180), software parsers regularly make destructive assumptions. Here are the five most damaging defects that corrupt commercial databases.
+      </p>
+
+      <h2>1. Silent Truncation of Leading Zeroes</h2>
+      <p>
+        When Excel or standard automated scripts open a CSV without strict schema definitions, they evaluate every column for apparent data types. If a cell contains <code>04102</code> (a Massachusetts ZIP code) or <code>0098412</code> (a barcode SKU), the software interprets it as a number and strips the leading zeros:
+      </p>
+      <ul>
+        <li><code>04102</code> becomes <code>4102</code> (an invalid ZIP code).</li>
+        <li><code>0098412</code> becomes <code>98412</code> (mismatched SKU causing warehouse fulfillment errors).</li>
+      </ul>
+      <p>
+        Once the spreadsheet is saved, the leading zeros are permanently gone from the text stream.
+      </p>
+
+      <h2>2. Calendar Date Ambiguity & Transposition</h2>
+      <p>
+        Dates written with forward slashes such as <code>04/05/2026</code> have zero inherent locale specification. Depending on whether your spreadsheet engine or importing database uses US formatting (MM/DD/YYYY) or Commonwealth / Canadian formatting (DD/MM/YYYY):
+      </p>
+      <ul>
+        <li>US parser reads: <strong>April 5, 2026</strong></li>
+        <li>Canadian parser reads: <strong>May 4, 2026</strong></li>
+      </ul>
+      <p>
+        The error is silent: no crash occurs, but payment due dates, delivery commitments, or financial accounting quarters are corrupted by an entire month. Standardizing strictly to ISO 8601 (<code>YYYY-MM-DD</code>) before import is essential.
+      </p>
+
+      <h2>3. Unescaped Commas & Line Breaks Breaking Row Boundaries</h2>
+      <p>
+        Under RFC 4180, fields containing commas or line breaks (such as product descriptions or multi-line shipping addresses) must be enclosed in quotation marks. If a text field contains an unescaped comma or an unclosed quotation mark:
+      </p>
+      <ul>
+        <li>The comma acts as a delimiter, shifting every subsequent column to the right.</li>
+        <li>A customer's telephone number shifts into the price column; their address shifts into the tax column.</li>
+        <li>An unclosed quote causes the parser to consume subsequent rows as part of the previous row's text.</li>
+      </ul>
+
+      <h2>4. Character Encoding Mismatches (UTF-8 vs Windows-1252)</h2>
+      <p>
+        When exports containing accented characters, French names (common across Ottawa and Gatineau), or currency symbols (<code>€</code>, <code>£</code>, <code>é</code>, <code>à</code>) are saved using Windows-1252 or ANSI encoding and ingested into a UTF-8 system, mojibake occurs:
+      </p>
+      <ul>
+        <li><code>Montréal</code> becomes <code>MontrÃ©al</code>.</li>
+        <li>Currency symbols turn into question marks (<code>?250.00</code>) or corrupt numeric parsing.</li>
+      </ul>
+
+      <h2>5. Scientific Notation on Long Numeric Identifiers</h2>
+      <p>
+        Credit card numbers, bank transit codes, IMEI numbers, and 12-digit UPC barcodes exceed the standard 11-digit integer display of standard spreadsheet programs. A barcode <code>123456789012</code> is automatically rendered as <code>1.23457E+11</code>. If saved back to disk, the trailing precision digits are replaced with zeroes, permanently corrupting the identifier.
+      </p>
+
+      <div class="callout-box">
+        <h4>Check Your CSV in 5 Seconds Before Importing</h4>
+        <p>
+          Our free in-browser scanner inspects your file against all five of these failure modes with zero uploads and complete local privacy.
+        </p>
+        <p style="margin-bottom:0;">
+          <a href="../scanner/" class="btn btn-sm btn-primary">Open Free CSV Scanner &rarr;</a>
+          <a href="../csv-import-guide.html" class="btn btn-sm btn-outline" style="margin-left:0.5rem;">Read 5-Step Import Guide &rarr;</a>
+        </p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Dustin Rebellato. Operating from Ottawa, Ontario. <a href="../#home" style="color:var(--text-muted);">Back to Homepage</a></p>
+    </div>
+  </footer>
+</body>
+</html>
