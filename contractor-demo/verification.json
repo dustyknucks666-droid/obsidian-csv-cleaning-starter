@@ -1,0 +1,36 @@
+{
+  "label": "SYNTHETIC DEMONSTRATION - NOT CUSTOMER WORK",
+  "result": "PASS",
+  "command": "python fiverr/cleaner.py --members site/contractor-demo/synthetic-suppliers.csv --out site/contractor-demo/output --key \"Supplier name\" --strict-rows",
+  "interpreter_version": "3.11.9",
+  "engine_sha256": "f4ede5e763a64ff5a4bf2f0566b5f1ef7dde418ab92a1744aa2f129279638f9d",
+  "rows_in": 8,
+  "rows_out": 8,
+  "rows_deleted": 0,
+  "changes": 3,
+  "exceptions": 10,
+  "checks": [
+    "every cleaned cell equals literal oracle",
+    "exact copy equals safe copy for this fixture",
+    "source unchanged",
+    "all changes match independent expected set",
+    "all exception positions and types match independent expected set",
+    "report hashes match artifacts",
+    "replayed change log reproduces every cell",
+    "HTML preview equals cleaned CSV",
+    "all local downloads and anchors resolve",
+    "existing commercial routes preserved"
+  ],
+  "sha256": {
+    "changes.csv": "ef0cf970a920aed0d12adb1e0d09b11f6821abdee1f8c29bc08097fce87b6f5f",
+    "cleaned-exact.csv": "3e0a8b01c1de633cb9f6c18e2ca1812be24cf024b3755223ffe4d903c3984485",
+    "cleaned.csv": "3e0a8b01c1de633cb9f6c18e2ca1812be24cf024b3755223ffe4d903c3984485",
+    "exceptions.csv": "9d7f47ebc0ad789339d6d71632e965276a5cae09e035ed9b415bbade82947284",
+    "summary.md": "7aee87281d66b8ceb00441544f8d63e3d672224a91429e1aee8dc0c69c9ee214",
+    "verification-report.md": "899e188a2be633d65f98a57445400630a6cdd325cd278416cefc101a05d6c017"
+  },
+  "limitations": [
+    "No price adjudication, product equivalence, unit conversion, estimating or native workbook proof.",
+    "Matching supplier names flag candidate conflicts; they do not establish supplier identity."
+  ]
+}

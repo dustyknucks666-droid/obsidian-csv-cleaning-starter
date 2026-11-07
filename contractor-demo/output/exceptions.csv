@@ -1,0 +1,11 @@
+﻿row,column,type,detail,value
+3,(whole row),duplicate-row,identical to row 2; both kept,
+2,Supplier name,conflicting-record,same Supplier name as another row but different values in: Quoted price,
+3,Supplier name,conflicting-record,same Supplier name as another row but different values in: Quoted price,
+4,Supplier name,conflicting-record,same Supplier name as another row but different values in: Quoted price,
+5,Supplier name,conflicting-record,"same Supplier name as another row but different values in: Material description, Unit of measure",
+6,Supplier name,conflicting-record,"same Supplier name as another row but different values in: Material description, Unit of measure",
+9,Trade category,missing-value,no value in this field,
+7,Unit of measure,missing-value,no value in this field,
+7,Quoted price,missing-value,no value in this field,
+9,Quote date,missing-value,no value in this field,
