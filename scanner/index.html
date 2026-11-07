@@ -236,6 +236,7 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
       <li><a href="../articles/duplicate-removal-risks.html">Why Removing Duplicate Spreadsheet Rows Can Destroy Important Customer Information</a></li>
       <li><a href="../articles/five-csv-import-problems.html">Five CSV Import Problems That Cause Silent Business Data Errors</a></li>
       <li><a href="../articles/shopify-inventory-audit.html">How to Audit a Shopify Product Export Before Importing Inventory Changes</a></li>
+      <li><a href="../contractors.html">Construction Vendor &amp; Material Data Cleanup (CA$29 Starter)</a></li>
       <li><a href="../csv-import-guide.html">Five-Step CSV Import Preparation Guide (with Stripe Checkout Routes)</a></li>
     </ul>
   </section>
@@ -768,7 +769,10 @@ var DataRescueScanner = (function () {
   }
 
   var PURCHASE = {
-    fiverr: 'https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report'
+    website: 'https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/',
+    fiverr: 'https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report',
+    stripe: 'https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/#services',
+    contractor: 'https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/contractors.html'
   };
 
   function buildMarkdownReport(result, generatedAt) {
@@ -847,9 +851,14 @@ var DataRescueScanner = (function () {
     lines.push('- It does not do fuzzy matching, check a platform import template, or verify emails, phone numbers or addresses.');
     lines.push('- A date column is only judged when at least one value proves the day or month order.');
     lines.push('');
-    lines.push('## Optional paid repair');
+    lines.push('## Optional paid repair & verification services');
     lines.push('');
-    lines.push('- One CSV, cleaned and checked, from US$20 for up to 100 rows: ' + PURCHASE.fiverr);
+    lines.push('If you prefer to have your spreadsheet professionally cleaned, validated, and deduplicated:');
+    lines.push('');
+    lines.push('1. **Fiverr Verified Service (from US$20 for up to 100 rows):** Protected marketplace milestone escrow: ' + PURCHASE.fiverr);
+    lines.push('2. **Direct Stripe-Hosted Checkout (CA$15 to CA$39):** Instant checkout for CSV starters and quality audits: ' + PURCHASE.stripe);
+    lines.push('3. **Contractor & Trade Data Cleanup (CA$29 fixed):** Bounded supplier and material CSV cleanup for trades: ' + PURCHASE.contractor);
+    lines.push('4. **Commercial Headquarters & Synthetic Proof:** ' + PURCHASE.website);
     lines.push('');
     lines.push('Scope is confirmed before ordering. No service can guarantee that another system will accept an import.');
     return lines.join('\n') + '\n';
