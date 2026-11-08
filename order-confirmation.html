@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmed — OBSIDIAN Venture Systems</title>
+  <meta name="description" content="Stripe payment confirmed for OBSIDIAN spreadsheet data cleaning and validation services. Order intake instructions and next steps.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="canonical" href="https://obsidianventuresystems.tech/order-confirmation.html">
+</head>
+<body class="bg-light">
+
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-name">DUSTIN REBELLATO</span>
+        <span class="brand-tag">OBSIDIAN ENGINEERING</span>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html#pricing" class="nav-link">Services</a>
+        <a href="contractors.html" class="nav-link">Contractor Demo</a>
+        <a href="index.html#contact" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container py-5" style="max-width: 800px; margin: 2rem auto;">
+    <div class="card p-4 shadow-lg" style="background: var(--surface-white); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+      
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: var(--primary-subtle); color: var(--primary); margin-bottom: 1rem;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <h1 style="font-size: 1.85rem; color: var(--text-main); margin-bottom: 0.5rem;">Payment Confirmed</h1>
+        <p class="text-muted" style="font-size: 1.05rem;">Your Stripe payment has been successfully authorized and your order is in the fulfillment queue.</p>
+      </div>
+
+      <div style="background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--primary); margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-main);">Session Reference:</span>
+          <span id="sessionDisplay" class="font-mono text-muted" style="word-break: break-all;">Loading...</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-main);">Payment Processor:</span>
+          <span class="text-muted">Stripe PCI-DSS Compliant Infrastructure</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+          <span style="font-weight: 600; color: var(--text-main);">Security &amp; Retention:</span>
+          <span class="text-muted">7-Day Post-Delivery Deletion Protocol</span>
+        </div>
+      </div>
+
+      <h2 style="font-size: 1.35rem; color: var(--text-main); margin-bottom: 1rem;">What Happens Next</h2>
+      
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="font-weight: bold; background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+          <div>
+            <h4 style="margin: 0 0 0.25rem 0; color: var(--text-main);">Scope Confirmation Email</h4>
+            <p class="text-muted" style="margin: 0; font-size: 0.95rem;">You will receive an official Stripe receipt and an order intake confirmation email within one business day confirming your package parameters and deliverables.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="font-weight: bold; background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+          <div>
+            <h4 style="margin: 0 0 0.25rem 0; color: var(--text-main);">Safe File Intake</h4>
+            <p class="text-muted" style="margin: 0; font-size: 0.95rem;">Reply to your confirmation email with your data file or secure private transfer link. <em>Never send passwords, credentials, credit card details, or sensitive personal identity records.</em></p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="font-weight: bold; background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+          <div>
+            <h4 style="margin: 0 0 0.25rem 0; color: var(--text-main);">Deterministic Processing &amp; Verification</h4>
+            <p class="text-muted" style="margin: 0; font-size: 0.95rem;">Your data is processed locally using OBSIDIAN's verified cleaning pipeline. Full before-and-after audit logs and exception summaries are generated.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="font-weight: bold; background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">4</div>
+          <div>
+            <h4 style="margin: 0 0 0.25rem 0; color: var(--text-main);">Delivery &amp; Retention Deletion</h4>
+            <p class="text-muted" style="margin: 0; font-size: 0.95rem;">You receive your delivery package containing cleaned data and verified audit reports. In accordance with our privacy guarantee, client source files are permanently deleted 7 days post-delivery.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-light); padding-top: 1.5rem; text-align: center;">
+        <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.25rem;">
+          <strong>Satisfaction &amp; Refund Guarantee:</strong> If your file is outside our published technical scope and we cannot agree on terms before work starts, you receive an immediate 100% full refund.
+        </p>
+        <a href="index.html" class="btn btn-primary" style="display: inline-block; padding: 0.75rem 1.75rem; border-radius: var(--radius-md); text-decoration: none;">Return to Commercial Headquarters &rarr;</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer" style="margin-top: 4rem; padding: 2rem 0; background: var(--bg-dark); color: var(--text-light-muted); text-align: center; font-size: 0.85rem;">
+    <div class="container">
+      <p>&copy; 2026 OBSIDIAN Venture Systems. Enterprise Spreadsheet Engineering &amp; Data Integrity.</p>
+      <p style="margin-top: 0.25rem;">Direct Stripe payment processing &bull; Zero client data retention beyond 7 days &bull; Ottawa, Ontario &bull; obsidianventuresystems.tech</p>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id') || 'Direct Checkout Verified';
+      const displayElem = document.getElementById('sessionDisplay');
+      if (displayElem) {
+        displayElem.textContent = sessionId;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -140,7 +140,7 @@ function initInquiryForm() {
     const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
     const compiledDraft = [
       `==================================================`,
-      `DUSTIN REBELLATO — SERVICE INQUIRY PACKAGE`,
+      `OBSIDIAN VENTURE SYSTEMS — SERVICE INQUIRY PACKAGE`,
       `Timestamp: ${timestamp}`,
       `==================================================`,
       `Client Name:     ${name}`,
@@ -165,7 +165,7 @@ function initInquiryForm() {
     // Build Mailto Link
     const subject = encodeURIComponent(`OBSIDIAN Service Inquiry: ${serviceName} - ${name}`);
     const body = encodeURIComponent(compiledDraft);
-    emailMailtoBtn.href = `mailto:obsidian1change1the1world@gmail.com?subject=${subject}&body=${body}`;
+    emailMailtoBtn.href = `mailto:hello@obsidianventuresystems.tech?cc=obsidian1change1the1world@gmail.com&subject=${subject}&body=${body}`;
 
     showStatus('Inquiry compiled successfully. You can review and copy your package below.', 'text-success');
   });
