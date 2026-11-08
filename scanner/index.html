@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'">
   <meta name="referrer" content="no-referrer">
-  <meta name="description" content="Free CSV checker that runs entirely in your browser. Find duplicate IDs, conflicting records, missing values, unreadable dates and numbers, spreadsheet formula risks and import problems, then download a report.">
+  <meta name="description" content="Check a CSV export locally on your device for duplicate records, date errors, whitespace, and formatting risks with zero data uploads. Free in-browser diagnostic powered by Event Horizon.">
   <meta name="theme-color" content="#f5f7f4">
-    <link rel="canonical" href="https://obsidianventuresystems.tech/scanner/">
-  <meta property="og:title" content="Free CSV Data Rescue Scanner — In-Browser Spreadsheet Check">
+  <link rel="canonical" href="https://obsidianventuresystems.tech/scanner/">
+  <meta property="og:title" content="Check My CSV — In-Browser Spreadsheet Diagnostic | Event Horizon Scanner Beta">
   <meta property="og:description" content="Check a CSV export locally in your browser for duplicate IDs, conflicting records, date errors, and formatting risks with zero data uploads.">
   <meta property="og:url" content="https://obsidianventuresystems.tech/scanner/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://obsidianventuresystems.tech/showcase/media/promo-thumbnail.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Free CSV Data Rescue Scanner">
-  <meta name="twitter:description" content="Local, in-browser CSV diagnostic tool for spreadsheets and imports.">
+  <meta name="twitter:title" content="Check My CSV — Event Horizon Scanner Beta">
+  <meta name="twitter:description" content="Local, client-side CSV diagnostic tool for spreadsheets and database imports.">
   <meta name="twitter:image" content="https://obsidianventuresystems.tech/showcase/media/promo-thumbnail.png">
-  <title>Free CSV Data Rescue Scanner - check a CSV for import problems in your browser</title>
+  <title>Check My CSV — In-Browser Spreadsheet Diagnostic | Event Horizon Scanner Beta</title>
   <style>
 :root {
   color-scheme: light;
@@ -40,10 +40,17 @@
 body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.6; }
 .skip-link { position: absolute; left: -9999px; top: 0; padding: .7rem 1rem; background: var(--card); color: var(--ink); z-index: 2; }
 .skip-link:focus { left: .75rem; top: .75rem; }
+.top-nav { background: var(--card); border-bottom: 1px solid var(--line); padding: 0.75rem 1rem; font-size: 0.95rem; }
+.top-nav-inner { max-width: 64rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.brand-link { color: var(--accent); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; }
+.nav-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+.nav-links a { color: var(--muted); text-decoration: none; font-weight: 550; }
+.nav-links a:hover { color: var(--accent-dark); }
 .page { width: min(100% - 1.5rem, 64rem); margin: clamp(.75rem, 4vw, 2.5rem) auto; padding: clamp(1rem, 4vw, 3rem); background: var(--card); border: 1px solid var(--line); border-radius: 1.25rem; box-shadow: 0 1rem 3rem rgb(21 34 31 / 7%); }
+.engine-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #eef6f2; border: 1px solid var(--accent); color: var(--accent-dark); font-size: 0.82rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem; }
 h1, h2, h3 { line-height: 1.2; letter-spacing: -.02em; }
-h1 { color: var(--accent-dark); font-size: clamp(1.9rem, 7vw, 3.2rem); margin: 0 0 .5rem; }
-h2 { margin: 2.25rem 0 .75rem; font-size: clamp(1.3rem, 4vw, 1.7rem); }
+h1 { color: var(--accent-dark); font-size: clamp(1.9rem, 6vw, 3rem); margin: 0 0 .5rem; }
+h2 { margin: 2rem 0 .75rem; font-size: clamp(1.25rem, 4vw, 1.65rem); }
 h3 { margin: 1.25rem 0 .5rem; font-size: 1.1rem; }
 p, ul, ol { max-width: 72ch; }
 a { color: var(--accent-dark); text-underline-offset: .18em; }
@@ -54,20 +61,39 @@ a:focus-visible, button:focus-visible, summary:focus-visible, .file-input:focus-
 .privacy p { margin: .25rem 0; }
 .picker { margin: 1.5rem 0 .5rem; position: relative; }
 .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-.drop { display: block; border: 2px dashed var(--accent); border-radius: 1rem; padding: clamp(1.25rem, 5vw, 2.25rem); text-align: center; cursor: pointer; background: #fafcfb; }
+.drop { display: block; border: 2px dashed var(--accent); border-radius: 1rem; padding: clamp(1.25rem, 5vw, 2.25rem); text-align: center; cursor: pointer; background: #fafcfb; transition: background 0.15s ease; }
+.drop:hover { background: #f2f8f5; }
 .drop.dragging { background: #e6f2ed; }
-.drop strong { display: block; font-size: 1.15rem; color: var(--accent-dark); }
+.drop strong { display: block; font-size: 1.25rem; color: var(--accent-dark); margin-bottom: 0.25rem; }
 .drop span { color: var(--muted); font-size: .95rem; }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0; align-items: center; }
-button, .button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.9rem; padding: .7rem 1.1rem; border-radius: .65rem; border: 2px solid var(--accent); background: var(--accent); color: #fff; font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; text-align: center; }
-button.secondary, .button.secondary { background: #fff; color: var(--accent-dark); }
+button, .button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.9rem; padding: .7rem 1.2rem; border-radius: .65rem; border: 2px solid var(--accent); background: var(--accent); color: #fff; font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; text-align: center; }
+button.secondary, .button.secondary { background: #fff; color: var(--accent-dark); border-color: var(--line); }
+button.secondary:hover, .button.secondary:hover { background: #f0f4f2; border-color: var(--accent); color: var(--accent-dark); }
 button:hover, .button:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
 #status { min-height: 1.6rem; font-weight: 600; }
 #status.error { color: var(--high); }
-.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 1rem 0; padding: 0; list-style: none; max-width: none; }
-.summary li { border: 1px solid var(--line); border-radius: .75rem; padding: .75rem; background: #fbfcfb; overflow-wrap: anywhere; }
-.summary b { display: block; font-size: 1.35rem; }
-.summary span { color: var(--muted); font-size: .9rem; }
+.results-header { background: #eef6f2; border: 1px solid var(--accent); border-radius: 0.75rem; padding: 1.25rem; margin: 1.5rem 0 1rem; }
+.status-badge { display: inline-block; background: var(--accent-dark); color: #fff; font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+.results-header h2 { margin: 0 0 0.25rem; color: var(--accent-dark); }
+.trust-notice { margin: 0; font-size: 0.95rem; color: var(--ink); }
+.result-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+.result-card { background: #fff; border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.25rem; }
+.result-card h3 { margin-top: 0; font-size: 1.15rem; color: var(--accent-dark); border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
+.result-card p { margin: 0.4rem 0; font-size: 0.95rem; }
+.result-card ul { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.92rem; }
+.result-card li { margin-bottom: 0.25rem; }
+.plain-summary { font-weight: 600; color: var(--accent-dark); }
+.tier-card { background: #fdfefe; border: 2px solid var(--accent); }
+.tier-badge { display: inline-block; background: #e6f4ea; border: 1px solid var(--accent); color: var(--accent-dark); font-size: 1.1rem; font-weight: 800; padding: 0.35rem 0.8rem; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+.tier-desc { font-size: 0.92rem; color: var(--muted); }
+.tier-price { font-size: 1.15rem; font-weight: 750; color: var(--accent-dark); margin: 0.5rem 0 0.25rem; }
+.tier-disclaimer { font-size: 0.8rem; color: var(--muted); font-style: italic; margin-top: 0.25rem; }
+.value-comparison { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; background: #f8fbf9; border: 1px solid var(--line); border-radius: 0.75rem; padding: 1.25rem; margin: 1.5rem 0; font-size: 0.92rem; }
+.val-col p { margin: 0.35rem 0 0; color: var(--muted); }
+.paid-col { border-left: 3px solid var(--accent); padding-left: 0.85rem; }
+.conversion-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.25rem 0; }
+.conversion-actions a { min-height: 2.8rem; font-size: 0.95rem; }
 .sev { display: inline-block; font-size: .78rem; font-weight: 700; padding: .1rem .5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; vertical-align: middle; }
 .sev.high { color: var(--high); background: var(--high-bg); }
 .sev.medium { color: var(--medium); background: var(--medium-bg); }
@@ -90,173 +116,201 @@ td.value { font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhe
 .price { font-size: 1.25rem; font-weight: 750; color: var(--accent-dark); }
 footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 [hidden] { display: none !important; }
-@media (max-width: 30rem) {
-  .actions { flex-direction: column; align-items: stretch; }
+@media (max-width: 40rem) {
+  .actions, .conversion-actions { flex-direction: column; align-items: stretch; }
+  .conversion-actions a { width: 100%; text-align: center; }
   th, td { padding: .4rem .45rem; }
 }
   </style>
 </head>
 <body>
 <a class="skip-link" href="#scan">Skip to the scanner</a>
-<div style="background:var(--card); border-bottom:1px solid var(--line); padding:0.75rem 1rem; font-size:0.95rem;">
-  <div style="max-width:64rem; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-    <a href="../index.html" style="color:var(--accent); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem;">
-      <span style="font-size:1.1rem;">&#9670;</span> Dustin Rebellato Commercial Headquarters
+
+<header class="top-nav">
+  <div class="top-nav-inner">
+    <a href="../index.html" class="brand-link">
+      <span style="font-size:1.15rem;">&#9670;</span> OBSIDIAN VENTURE SYSTEMS
     </a>
-    <div style="display:flex; gap:1.25rem; flex-wrap:wrap;">
-      <a href="../index.html#services" style="color:var(--muted); text-decoration:none; font-weight:550;">Services &amp; Pricing</a>
-      <a href="../csv-import-guide.html" style="color:var(--muted); text-decoration:none; font-weight:550;">CSV Import Guide</a>
-      <a href="../showcase/" style="color:var(--muted); text-decoration:none; font-weight:550;">Synthetic Audit Proof</a>
-      <a href="../index.html#contact" style="color:var(--accent); text-decoration:none; font-weight:600;">Contact / Inquire &rarr;</a>
-    </div>
+    <nav class="nav-links">
+      <a href="../index.html#services">Services &amp; Pricing</a>
+      <a href="../csv-import-guide.html">CSV Import Guide</a>
+      <a href="../showcase/">Synthetic Proof</a>
+      <a href="../index.html#contact" style="color:var(--accent);font-weight:650;">Contact &rarr;</a>
+    </nav>
   </div>
-</div>
+</header>
 
 <main class="page" id="top">
-  <h1>Free CSV Data Rescue Scanner</h1>
-  <p class="lede">Check a CSV export for the problems that break imports and reports: duplicate IDs, conflicting records, missing values, unreadable dates and numbers, spreadsheet formula risks and more. Every basic finding is free, with row numbers and a downloadable report.</p>
+  <div class="engine-badge">&#9670; Powered by Event Horizon &bull; Scanner Beta</div>
+  <h1>Check My CSV</h1>
+  <p class="lede">Diagnose formatting defects, duplicate records, blank required fields, and spreadsheet formula risks before importing into your CRM or database. Free, instant, and runs entirely in your browser.</p>
 
   <section class="privacy" aria-labelledby="privacy-title">
     <h2 id="privacy-title">Your file stays on your device</h2>
-    <p>The scan runs in this browser tab. The file is read locally and is never uploaded: this page contains no upload code, and its security policy blocks the page from making network connections.</p>
-    <p class="note">Limits: whoever hosts this page can see that the page was visited, but not your file. Browser extensions you have installed can read pages you open. The downloaded report contains values from your file, so store and share it as carefully as the file itself.</p>
+    <p>The scan runs locally inside this browser tab. Zero bytes are uploaded to OBSIDIAN or any third party: this page contains no upload script, and its strict browser Content Security Policy blocks network connections.</p>
+    <p class="note">Limits: browser extensions installed on your machine can read active tabs. Downloaded findings reports contain values from your file, so store and share them as securely as the file itself.</p>
   </section>
 
   <section id="scan" aria-labelledby="scan-title">
-    <h2 id="scan-title">Scan a CSV file</h2>
+    <h2 id="scan-title">Select a CSV to Inspect</h2>
     <div class="picker">
       <input class="file-input" type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" aria-describedby="file-help">
       <label class="drop" id="drop" for="file">
         <strong>Choose a CSV file</strong>
-        <span id="file-help">or drop it here. CSV, TSV or delimited text up to 25 MB, 100,000 rows and 1,000,000 cells.</span>
+        <span id="file-help">or drag and drop it here. CSV, TSV or delimited text up to 25 MB and 100,000 rows.</span>
       </label>
     </div>
     <div class="actions">
-      <button type="button" class="secondary" id="sample">Try it with a synthetic sample file</button>
+      <button type="button" class="secondary" id="sample">Try a Sample File (Instant Demo)</button>
     </div>
     <p id="status" role="status" aria-live="polite"></p>
   </section>
 
   <section id="results" aria-labelledby="results-title" hidden>
-    <h2 id="results-title" tabindex="-1">Results</h2>
-    <ul class="summary" id="summary"></ul>
-        <div style="background:#eef6f2; border:1px solid var(--accent); border-radius:0.75rem; padding:1.25rem; margin:1.5rem 0;">
-      <h3 style="margin-top:0; color:var(--accent-dark); font-size:1.15rem;">What happens when you find conflicting records?</h3>
-      <p style="margin-bottom:0.75rem; font-size:0.95rem; color:var(--ink);">
-        Standard Excel deduplication permanently deletes conflicting rows. Our non-destructive protocol retains 100% of rows in a verified master while logging every conflicting attribute in an exception report.
-      </p>
-      <a href="../showcase/" class="button secondary" style="min-height:2.4rem; padding:0.4rem 0.9rem; font-size:0.9rem;">Watch 60-Second Video Demonstration &rarr;</a>
-      <a href="#repair" class="button" style="min-height:2.4rem; padding:0.4rem 0.9rem; font-size:0.9rem; margin-left:0.5rem;">See Repair Packages &darr;</a>
+    <div class="results-header">
+      <span class="status-badge">FILE CHECK COMPLETE</span>
+      <h2 id="results-title" tabindex="-1">Diagnostic Inspection Summary</h2>
+      <p class="trust-notice"><strong>Safety Guarantee:</strong> Nothing was changed in your source file. <strong>Privacy Guarantee:</strong> Your file remained on your device (0 bytes uploaded).</p>
     </div>
 
-    <div class="actions">
-      <button type="button" id="download-report">Download report (.md)</button>
-      <button type="button" class="secondary" id="download-csv">Download findings (.csv)</button>
+    <div class="result-cards-grid">
+      <div class="result-card">
+        <h3>File Details</h3>
+        <p><strong>Rows:</strong> <span id="res-rows">0</span> data rows</p>
+        <p><strong>Columns:</strong> <span id="res-cols">0</span> columns</p>
+        <p><strong>Format:</strong> <span id="res-format">CSV (UTF-8)</span></p>
+      </div>
+
+      <div class="result-card">
+        <h3>Potential Cleanup</h3>
+        <p id="res-plain-summary" class="plain-summary">We found issues that may need review.</p>
+        <ul>
+          <li><strong id="res-dups">0</strong> exact duplicate rows detected</li>
+          <li><strong id="res-spaces">0</strong> cells with extra whitespace</li>
+          <li><strong id="res-inconsistent">0</strong> inconsistent values or dates</li>
+          <li><strong id="res-blank">0</strong> empty required fields</li>
+          <li><strong id="res-formulas">0</strong> formula injection risks guarded</li>
+        </ul>
+      </div>
+
+      <div class="result-card tier-card">
+        <h3>Recommended Service Fit</h3>
+        <div class="tier-badge" id="res-tier-badge">LIKELY BASIC</div>
+        <p class="tier-desc" id="res-tier-desc">Fits Basic Package (&le; 500 rows). Cleaned file, duplicate removal, formatting standard, and change log.</p>
+        <p class="tier-price" id="res-tier-price">From $15 USD / $20 CAD</p>
+        <p class="tier-disclaimer">Estimate only &mdash; final scope confirmed before processing.</p>
+      </div>
     </div>
+
+    <div class="value-comparison">
+      <div class="val-col">
+        <strong>Free Diagnostic (This Browser Scan):</strong>
+        <p>Identifies errors, formatting issues, and duplicate counts. Your file is never modified, uploaded, or exposed.</p>
+      </div>
+      <div class="val-col paid-col">
+        <strong>Paid Fulfillment (Event Horizon Engine):</strong>
+        <p>OBSIDIAN cleans, standardizes, deduplicates, and delivers a production-ready file + verified audit log and cryptographic receipt.</p>
+      </div>
+    </div>
+
+    <div class="conversion-actions">
+      <a href="../index.html#services" class="button" id="cta-clean-file">Have OBSIDIAN clean this file &rarr;</a>
+      <a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" target="_blank" rel="noopener noreferrer" class="button secondary" id="cta-fiverr-escrow">View Fiverr packages (Marketplace Escrow) &rarr;</a>
+      <button type="button" class="secondary" id="download-report">Download Diagnostic (.md)</button>
+      <button type="button" class="secondary" id="download-csv">Download Findings (.csv)</button>
+    </div>
+
     <p class="note" id="notes"></p>
-    <h3>What the scan found</h3>
+    <h3>Detailed Findings Breakdown</h3>
     <div id="findings"></div>
-    <h3>Column profile</h3>
+    <h3>Column Profile</h3>
     <div class="table-wrap"><table id="columns-table"><caption>How each column was read</caption><thead><tr><th scope="col">Column</th><th scope="col">Read as</th><th scope="col">Filled</th><th scope="col">Empty</th><th scope="col">Findings</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="offer" id="repair" aria-labelledby="repair-title">
-    <h2 id="repair-title">Want the problems repaired for you?</h2>
-    <p>The scan is free and stays free. If you would rather have the file cleaned and checked by a person, the existing Fiverr service covers it. Scope is confirmed before you order; nothing here is a quote, and no service can guarantee that another system will accept an import.</p>
+    <h2 id="repair-title">Professional Cleanup &amp; Verification Services</h2>
+    <p>The scan is free and stays free. If you want your file professionally repaired, standardized, and deduplicated without silent row deletion, choose an authorized path below:</p>
     <div class="offer-grid">
-            <article class="offer-card">
-        <span class="sev low" style="margin-bottom:0.5rem;">Protected Escrow</span>
-        <h3>Fiverr Verified Service</h3>
-        <p class="price">From US$20 on Fiverr</p>
-        <ul>
-          <li><strong>Basic (US$20):</strong> One CSV up to 100 rows, 3-day delivery, 1 revision.</li>
-          <li><strong>Standard (US$100):</strong> Up to 2,000 rows.</li>
-          <li><strong>Premium (US$200):</strong> Up to 10,000 rows.</li>
-          <li>Includes cleaned CSV, cell change log, exception report, and reconciliation summary.</li>
-        </ul>
-        <p class="note">Protected marketplace milestone escrow. Message before ordering.</p>
-        <a class="button" id="buy-fiverr" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank" style="width:100%;">Order via Fiverr &rarr;</a>
-      </article>
-
       <article class="offer-card">
-        <span class="sev medium" style="margin-bottom:0.5rem;">Direct Checkout</span>
-        <h3>Stripe Hosted Audit</h3>
+        <span class="sev low" style="margin-bottom:0.5rem;">Direct Checkout</span>
+        <h3>Direct Stripe Services</h3>
         <p class="price">From CA$15 &ndash; CA$39</p>
         <ul>
-          <li><strong>CA$15 CSV Starter:</strong> Cleaned file + change log (up to 50 rows).</li>
-          <li><strong>CA$29 Duplicate Audit:</strong> Duplicate &amp; conflict detection (up to 2,000 rows).</li>
-          <li><strong>CA$39 Quality Audit:</strong> Full ranked quality audit (up to 100 rows, 30 cols, 1 MiB).</li>
-          <li>Instant hosted credit/debit checkout powered by Stripe.</li>
+          <li><strong>CA$15 CSV Starter:</strong> Cleaned file + change log (&le; 500 rows).</li>
+          <li><strong>CA$29 Duplicate Audit:</strong> Comprehensive deduplication (&le; 2,500 rows).</li>
+          <li><strong>CA$39 Quality Audit:</strong> Full ranked quality audit &amp; consolidation.</li>
+          <li>Instant checkout powered by Stripe. Zero platform middleman.</li>
         </ul>
-        <p class="note">Direct purchase route with scope confirmation before work commences.</p>
-        <a class="button secondary" href="../index.html#services" style="width:100%; border-color:var(--accent);">View Stripe Checkout Options &rarr;</a>
+        <p class="note">Scope confirmed before work commences. 100% money-back guarantee.</p>
+        <a class="button" href="../index.html#services" style="width:100%;">View Direct Options &rarr;</a>
       </article>
 
       <article class="offer-card">
-        <span class="sev high" style="margin-bottom:0.5rem;">Local Service</span>
-        <h3>Ottawa Small Business Prep</h3>
-        <p class="price">CA$29 Fixed (Kijiji)</p>
+        <span class="sev medium" style="margin-bottom:0.5rem;">Marketplace Escrow</span>
+        <h3>Fiverr Verified Service</h3>
+        <p class="price">From US$15 on Fiverr</p>
         <ul>
-          <li><strong>CA$29 Starter:</strong> One UTF-8 CSV up to 100 rows, 6 columns, 1 MiB.</li>
-          <li>Up to two agreed cleanup/standardization rules.</li>
-          <li>One scoped correction round with signed 7-day data deletion receipt.</li>
-          <li>Direct founder review in Ottawa, Ontario.</li>
+          <li><strong>Basic (US$15):</strong> Up to 500 rows thoroughly cleaned, 24h delivery.</li>
+          <li><strong>Standard (US$45):</strong> Up to 2,500 rows with full exception audit.</li>
+          <li><strong>Premium (US$95):</strong> Up to 10,000 rows or multi-file consolidation.</li>
+          <li>Third-party platform escrow protection and messaging.</li>
         </ul>
-        <p class="note">Local classified listing verified for Ottawa &amp; Eastern Ontario.</p>
-        <a class="button secondary" href="https://www.kijiji.ca/v-buy-sell-other/ottawa/excel-&-csv-cleanup-duplicates-formatting-&-import-problems/1745182098" rel="noopener noreferrer" target="_blank" style="width:100%;">View Kijiji Ottawa Listing &rarr;</a>
+        <p class="note">Protected marketplace milestone escrow.</p>
+        <a class="button secondary" id="buy-fiverr" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank" style="width:100%;">Order on Fiverr &rarr;</a>
+      </article>
+
+      <article class="offer-card">
+        <span class="sev high" style="margin-bottom:0.5rem;">Direct Inquiry</span>
+        <h3>Custom Enterprise Scope</h3>
+        <p class="price">Custom Quote</p>
+        <ul>
+          <li>Files exceeding 10,000 rows or complex multi-sheet workbooks.</li>
+          <li>Custom deduplication rules and reconciliation matrices.</li>
+          <li>Dedicated intake via <code>hello@obsidianventuresystems.tech</code>.</li>
+        </ul>
+        <p class="note">Direct review by OBSIDIAN engineering team.</p>
+        <a class="button secondary" href="mailto:hello@obsidianventuresystems.tech" style="width:100%;">Email Intake Team &rarr;</a>
       </article>
     </div>
   </section>
 
   <section aria-labelledby="checks-title">
-    <h2 id="checks-title">What the scanner checks</h2>
+    <h2 id="checks-title">What Event Horizon Checks</h2>
     <ul>
-      <li><strong>Structure:</strong> delimiter, encoding, rows with the wrong number of cells, unclosed quotation marks, blank or repeated column names, blank rows.</li>
-      <li><strong>Records:</strong> exact duplicate rows; rows that share an ID, email or code column but disagree (conflicts) or only fill each other's gaps.</li>
-      <li><strong>Values:</strong> missing values, placeholders such as N/A or null, dates that cannot be read or mix day-first and month-first order, numbers that cannot be read, and numeric columns with inconsistent formats.</li>
-      <li><strong>Safety:</strong> cells that a spreadsheet would run as a formula (CSV injection).</li>
-      <li><strong>Import risks:</strong> leading zeros that spreadsheets drop, long numbers that spreadsheets round, line breaks inside cells, cells too long for a spreadsheet, and extra spaces.</li>
+      <li><strong>Structure:</strong> Delimiter detection, encoding issues, ragged rows, unclosed quotes, blank/duplicate headers, and empty rows.</li>
+      <li><strong>Records:</strong> Exact duplicate rows and conflicting records sharing an ID or email but differing in values.</li>
+      <li><strong>Values:</strong> Missing fields, placeholders (N/A, null), invalid dates, ambiguous date formats, and unparseable numbers.</li>
+      <li><strong>Safety:</strong> Formula-like cells starting with <code>=</code>, <code>+</code>, <code>-</code>, or <code>@</code> that trigger spreadsheet calculation risks.</li>
+      <li><strong>Import Hazards:</strong> Dropped leading zeros on SKUs/postal codes, truncated long numbers, and cell line breaks.</li>
     </ul>
-    <h3>Not supported</h3>
+    <h3>Out of Scope for Free Scanner</h3>
     <ul>
-      <li>Excel workbooks (.xlsx, .xls), OpenDocument, Numbers, JSON or PDF files: export the sheet as CSV first.</li>
-      <li>Files over 25 MB, 100,000 rows or 1,000,000 cells, and single cells over 2 million characters.</li>
-      <li>Fuzzy matching (similar names or addresses), checks against a particular platform's import template, and validating emails, phone numbers or addresses against the real world.</li>
-      <li>Dates are judged by their shape: a column whose dates could all be read either way (for example 03/04/2025) is not flagged.</li>
+      <li>Excel binary workbooks (.xlsx, .xls) &mdash; export your sheet as CSV first.</li>
+      <li>Files over 25 MB or 100,000 rows &mdash; contact us for enterprise consolidation.</li>
+      <li>Automatic record deletion or file modification &mdash; our engine never guesses or overwrites your data.</li>
     </ul>
-    <p><a href="csv-import-problems.html">See a worked example with a synthetic file</a>.</p>
+    <p><a href="csv-import-problems.html">Read our worked example explaining real CSV import hazards</a>.</p>
   </section>
 
   <footer>
-    <p>"Data Rescue Scanner" is a descriptive working title, not a registered trademark. The scanner reports what it can detect mechanically; it does not change your file. Findings are a starting point for review, not a guarantee that a file is correct or will import.</p>
+    <p><strong>OBSIDIAN Venture Systems</strong> &bull; Event Horizon Scanner Beta &bull; Primary Inquiries: <a href="mailto:hello@obsidianventuresystems.tech">hello@obsidianventuresystems.tech</a> &bull; The scanner reports what it detects deterministically; it never alters your file.</p>
   </footer>
-  <section style="margin-top:2.5rem; border-top:1px solid var(--line); padding-top:1.5rem;">
-    <h3>Technical Guides &amp; Educational Resources</h3>
-    <ul style="margin:0.5rem 0 1.5rem; padding-left:1.5rem;">
-      <li><a href="../articles/duplicate-removal-risks.html">Why Removing Duplicate Spreadsheet Rows Can Destroy Important Customer Information</a></li>
-      <li><a href="../articles/five-csv-import-problems.html">Five CSV Import Problems That Cause Silent Business Data Errors</a></li>
-      <li><a href="../articles/shopify-inventory-audit.html">How to Audit a Shopify Product Export Before Importing Inventory Changes</a></li>
-      <li><a href="../contractors.html">Construction Vendor &amp; Material Data Cleanup (CA$29 Starter)</a></li>
-      <li><a href="../csv-import-guide.html">Five-Step CSV Import Preparation Guide (with Stripe Checkout Routes)</a></li>
-    </ul>
-  </section>
-
 </main>
 
 <script type="text/csv" id="sample-csv">
 product_id,title,price,stock,launch_date,barcode,notes
-P-1001,Canvas tote bag,$24.00,12,03/04/2025,00123456,
-P-1002,Ceramic mug ,18.5,40,15/04/2025,04012345,Gift box
-P-1003,Linen napkins (set of 4),N/A,7,21/04/2025,012000,
-P-1004,,32,,30/04/2025,05011111,Needs photo
-P-1002,Ceramic mug,19.5,40,15/04/2025,04012345,Gift box
-P-1005,Beeswax candle,12,25,2025-05-02,1234567890123456789,=SUM(A1:A9)
-P-1006,Wool throw,89,3,31/13/2025,07000000,"Ships in two
+P-1001,Canvas tote bag ,$24.00,12,03/04/2026,00123456,
+P-1002,Ceramic mug,18.5,40,15/04/2026,04012345,Gift box
+P-1003,Linen napkins (set of 4),N/A,7,21/04/2026,012000,
+P-1004,,32,,30/04/2026,05011111,Needs photo
+P-1002,Ceramic mug,19.5,40,15/04/2026,04012345,Gift box
+P-1005,Beeswax candle,12,25,2026-05-02,1234567890123456789,=SUM(A1:A9)
+P-1006,Wool throw,89,3,31/13/2026,07000000,"Ships in two
 parcels"
-P-1007,Cotton apron,twenty,9,05/05/2025,08000000,@restock
-P-1008,Recycled notebook,6.75,60,06/05/2025,09000000
-P-1008,Recycled notebook,6.75,60,06/05/2025,09000000,
-P-1009,Glass carafe,27,,07/05/2025,,
+P-1007,Cotton apron,twenty,9,05/05/2026,08000000,@restock
+P-1008,Recycled notebook,6.75,60,06/05/2026,09000000
+P-1008,Recycled notebook,6.75,60,06/05/2026,09000000,
+P-1009,Glass carafe,27,,07/05/2026,,
 </script>
 
 <script id="scanner-core">
@@ -276,32 +330,32 @@ var DataRescueScanner = (function () {
   var DELIMITER_NAMES = { ',': 'comma', ';': 'semicolon', '\t': 'tab', '|': 'pipe' };
   var SPREADSHEET_CELL_LIMIT = 32767;
 
-  // [severity, title, why it matters, what to do]
   var TYPES = {
-    'unclosed-quote': ['high', 'Unclosed quotation mark', 'Everything after an unclosed quotation mark is read as one cell, which can swallow the rest of the file during an import.', 'Open the file in a text editor at that row and close or remove the stray quotation mark.'],
-    'ragged-row': ['high', 'Row with the wrong number of cells', 'Values shift into the wrong columns, usually because of a stray delimiter or quotation mark.', 'Check the row for an extra or missing delimiter, or a value containing the delimiter that is not quoted.'],
-    'blank-header': ['high', 'Column with no name', 'Import tools map columns by name, so an unnamed column is usually ignored or rejected.', 'Give the column a name, or delete it if it is empty.'],
-    'duplicate-header': ['high', 'Repeated column name', 'Import tools map columns by name, so a repeated name can silently drop or overwrite one of the columns.', 'Rename one copy so that every column name is unique.'],
-    'encoding-damaged': ['high', 'Unreadable characters', 'Some characters could not be decoded and will appear as replacement symbols after import.', 'Re-export the file as CSV UTF-8 from the original system.'],
-    'formula-like': ['high', 'Spreadsheet formula risk', 'A cell starting with =, +, - or @ can run as a formula when the file is opened in a spreadsheet (CSV injection).', 'Treat the file with care. Remove the leading character, or prefix the cell with an apostrophe before opening the file in a spreadsheet.'],
-    'conflicting-record': ['high', 'Same identifier, different details', 'Two rows share an identifier but disagree on other fields, so an import may keep the wrong one or overwrite the right one.', 'Decide which row is correct for each identifier before importing.'],
-    'unparseable-date': ['high', 'Date that cannot be read', 'The value looks like a date but is not a real calendar date (for example month 13), so it may be rejected or misread.', 'Correct the date in the source system and re-export.'],
-    'unparseable-number': ['high', 'Number that cannot be read', 'The value looks numeric but cannot be read as a number.', 'Correct the value so that it is a plain number.'],
-    'duplicate-row': ['medium', 'Exact duplicate row', 'Importing both copies can double-count stock, orders or contacts.', 'Remove the extra copy if it is not intentional.'],
-    'complementary-record': ['medium', 'Same identifier split across rows', 'The rows do not contradict each other, but one is missing values that the other has.', 'Merge them into one complete row if they describe the same record.'],
-    'ambiguous-format': ['medium', 'Dates that could be day-first or month-first', 'The column contains dates that can only be day-first and others that can only be month-first, so no single reading is safe.', 'Confirm the date order with whoever produced the file and convert the column to YYYY-MM-DD.'],
-    'ambiguous-value': ['medium', 'Inconsistent value in a numeric column', 'Most values in the column are numbers, but this one is text or uses a different format, so an import may reject it or read it as zero.', 'Make every value in the column a plain number, or leave the cell empty.'],
-    'leading-zero': ['medium', 'Leading zeros at risk', 'Spreadsheets and number conversions drop leading zeros, which breaks barcodes, postcodes, account numbers and SKUs.', 'Keep the column as text when opening or importing the file.'],
-    'long-number': ['medium', 'Long number that spreadsheets round', 'Spreadsheets keep only 15 significant digits, so longer numbers are silently changed or shown in scientific notation.', 'Keep the column as text when opening or importing the file.'],
-    'very-long-cell': ['medium', 'Cell longer than spreadsheets allow', 'Spreadsheets hold at most 32,767 characters per cell and cut off the rest.', 'Shorten the value or keep the file out of spreadsheet software.'],
-    'missing-value': ['medium', 'Missing value', 'Required fields that are empty are a common reason for rejected or incomplete imports.', 'Fill the values that your import requires; leave optional ones empty.'],
-    'null-like': ['low', 'Placeholder instead of an empty value', 'Text such as N/A, null or a dash is imported as text, not as an empty value.', 'Replace placeholders with empty cells if the target system expects blanks.'],
-    'line-break': ['low', 'Line break inside a cell', 'Quoted line breaks are valid CSV, but some import tools and scripts split the row at the line break.', 'Check that your import tool accepts multi-line cells, or replace the line break with a space.'],
-    'whitespace': ['low', 'Extra spaces', 'Leading, trailing or doubled spaces make identical values look different, which breaks matching and de-duplication.', 'Trim the spaces.'],
-    'header-whitespace': ['low', 'Extra spaces in a column name', 'A column name with extra spaces may not match the name an import expects.', 'Trim the column name.'],
-    'blank-row': ['low', 'Blank row', 'Blank rows are skipped by this scan and may be rejected or imported as empty records elsewhere.', 'Delete the blank rows.'],
-    'encoding-fallback': ['low', 'File is not UTF-8', 'Many import tools expect UTF-8; accented letters and symbols in other encodings can turn into the wrong characters.', 'Re-export as CSV UTF-8 and check accented letters and symbols.']
+    'unclosed-quote': ['high', 'Unclosed quotation mark', 'Everything after an unclosed quote is read as one cell, which can swallow the rest of the file during import.', 'Open the file in a text editor at that row and close or remove the stray quote.'],
+    'ragged-row': ['high', 'Row with wrong number of cells', 'Values shift into the wrong columns, usually because of an unquoted delimiter.', 'Check the row for missing delimiters or values with commas not enclosed in quotes.'],
+    'blank-header': ['high', 'Column with no header name', 'Import tools map columns by name, so unnamed columns are rejected or dropped.', 'Add a column header name or delete the empty column.'],
+    'duplicate-header': ['high', 'Repeated column header name', 'Import tools map columns by name, so repeated names silently overwrite or drop data.', 'Rename column headers so every column name is distinct.'],
+    'encoding-damaged': ['high', 'Unreadable characters', 'Some characters could not be decoded and will appear as corrupted symbols after import.', 'Re-export the file as standard CSV UTF-8.'],
+    'formula-like': ['high', 'Spreadsheet formula injection risk', 'A cell starting with =, +, - or @ can execute formulas or exfiltrate data when opened in Excel.', 'Prefix with an apostrophe or sanitize values before opening in desktop spreadsheets.'],
+    'conflicting-record': ['high', 'Conflicting records (same ID, differing details)', 'Two rows share an identifier but disagree on other fields; imports may overwrite valid data.', 'Resolve conflicting rows before importing.'],
+    'unparseable-date': ['high', 'Unparseable date value', 'Value looks like a date but is invalid (e.g. month 13 or day 32).', 'Correct the date in source data and re-export.'],
+    'unparseable-number': ['high', 'Unparseable number value', 'Value is in a numeric column but contains unparseable text.', 'Make every value in the column a clean numeric format.'],
+    'duplicate-row': ['medium', 'Exact duplicate row', 'Importing both copies will double-count contacts, inventory, or orders.', 'Remove the redundant copy.'],
+    'complementary-record': ['medium', 'Same identifier split across rows', 'Rows share an ID and fill each other\'s missing fields.', 'Merge into a single complete record.'],
+    'ambiguous-format': ['medium', 'Mixed date order (day-first vs month-first)', 'The column contains dates that could be read either way; imports will corrupt dates.', 'Confirm date order and standardize to ISO 8601 (YYYY-MM-DD).'],
+    'ambiguous-value': ['medium', 'Inconsistent value in numeric column', 'Most values are numbers, but text or mixed units appear.', 'Standardize all values to numeric.'],
+    'leading-zero': ['medium', 'Leading zeros at risk', 'Spreadsheets drop leading zeros, breaking barcodes, ZIP codes, and SKUs.', 'Keep column as text when opening.'],
+    'long-number': ['medium', 'Long number rounded by spreadsheets', 'Spreadsheets keep only 15 significant digits, corrupting credit card numbers or long IDs.', 'Format column as text.'],
+    'very-long-cell': ['medium', 'Cell exceeds spreadsheet limit', 'Exceeds Excel\'s 32,767 character ceiling.', 'Shorten the field value.'],
+    'missing-value': ['medium', 'Missing field value', 'Empty cells in required columns break database constraints.', 'Populate required fields.'],
+    'null-like': ['low', 'Placeholder text (N/A, null, dash)', 'Treated as literal text rather than blank cells.', 'Replace placeholders with clean blanks if expected.'],
+    'line-break': ['low', 'Line break inside cell', 'Some older import tools break rows at line breaks.', 'Ensure import tool supports multi-line fields.'],
+    'whitespace': ['low', 'Extra whitespace padding', 'Leading or trailing spaces cause matching failures.', 'Trim spaces.'],
+    'header-whitespace': ['low', 'Extra spaces in column header', 'Can break exact header matching during import.', 'Trim column header.'],
+    'blank-row': ['low', 'Blank row', 'Can trigger premature end-of-file in older importers.', 'Remove blank rows.'],
+    'encoding-fallback': ['low', 'File is not UTF-8', 'Non-UTF-8 encodings cause corrupted accent symbols.', 'Standardize to UTF-8.']
   };
+
   var TYPE_ORDER = Object.keys(TYPES);
   var SEVERITY_RANK = { high: 0, medium: 1, low: 2 };
 
@@ -374,519 +428,342 @@ var DataRescueScanner = (function () {
     return cleaned;
   }
 
-  function isFormulaLike(value) {
-    var text = String(value || '').trim();
-    if (!text || LEADERS.indexOf(text.charAt(0)) < 0 || MONEY.test(text)) { return false; }
-    for (var i = 0; i < text.length; i++) {
-      var ch = text.charAt(i);
-      if (LEADERS.indexOf(ch) < 0 && !/\s/.test(ch)) { return true; }
-    }
-    return false;
-  }
-
-  function decode(bytes) {
-    var b = bytes;
-    var sig = function (list) { for (var i = 0; i < list.length; i++) { if (b[i] !== list[i]) { return false; } } return true; };
-    if (sig([0x50, 0x4b, 0x03, 0x04])) { throw ScanError('workbook', 'This looks like an Excel workbook or another zipped file, not a CSV. Open it and save or export the sheet as CSV UTF-8, then scan the CSV.'); }
-    if (sig([0xd0, 0xcf, 0x11, 0xe0])) { throw ScanError('workbook', 'This looks like an older Excel workbook (.xls), not a CSV. Save or export the sheet as CSV UTF-8, then scan the CSV.'); }
-    if (sig([0x25, 0x50, 0x44, 0x46])) { throw ScanError('pdf', 'This is a PDF, not a CSV. Export the data from the original system as CSV.'); }
-    if (sig([0xff, 0xfe]) || sig([0xfe, 0xff])) {
-      var label = b[0] === 0xff ? 'utf-16le' : 'utf-16be';
-      return { text: new TextDecoder(label).decode(b), encoding: label.toUpperCase(), bom: true };
-    }
-    if (b.subarray(0, 65536).indexOf(0) >= 0) { throw ScanError('binary', 'This file contains null bytes, so it is not a CSV or text table. Export it as CSV UTF-8 and scan again.'); }
-    var bom = sig([0xef, 0xbb, 0xbf]);
-    try {
-      return { text: new TextDecoder('utf-8', { fatal: true }).decode(b), encoding: 'UTF-8', bom: bom };
-    } catch (e) {
-      return { text: new TextDecoder('windows-1252').decode(b), encoding: 'Windows-1252', bom: false };
-    }
-  }
-
-  // RFC 4180 reader that, like Python's csv module, treats a quotation mark
-  // only at the start of a field as quoting and keeps every cell as text.
-  function parseText(text, delimiter, options) {
-    options = options || {};
-    var maxRecords = options.maxRecords || 0;
-    var maxCell = options.maxCell || 0;
-    var maxRows = options.maxRows || 0;
-    var D = delimiter.charCodeAt(0);
-    var rows = [];
-    var row = [];
-    var n = text.length;
-    var i = 0;
-    var unclosed = 0;
-    while (i < n) {
-      var field;
-      var k;
-      if (text.charCodeAt(i) === 34) {
-        var parts = [];
-        var j = i + 1;
-        for (;;) {
-          var q = text.indexOf('"', j);
-          if (q < 0) { parts.push(text.slice(j)); j = n; if (!unclosed) { unclosed = rows.length + 1; } break; }
-          parts.push(text.slice(j, q));
-          if (text.charCodeAt(q + 1) === 34) { parts.push('"'); j = q + 2; continue; }
-          j = q + 1;
-          break;
-        }
-        field = parts.join('');
-        k = j;
-        while (k < n) { var c1 = text.charCodeAt(k); if (c1 === D || c1 === 10 || c1 === 13) { break; } k++; }
-        if (k > j) { field += text.slice(j, k); }
-        i = k;
-      } else {
-        k = i;
-        while (k < n) { var c2 = text.charCodeAt(k); if (c2 === D || c2 === 10 || c2 === 13) { break; } k++; }
-        field = text.slice(i, k);
-        i = k;
-      }
-      if (maxCell && field.length > maxCell) {
-        throw ScanError('cell-too-large', 'Row ' + (rows.length + 1) + ' has a cell longer than ' + maxCell.toLocaleString('en-US') + ' characters. This usually means an unclosed quotation mark or a file that is not a table.');
-      }
-      row.push(field);
-      if (i >= n) { rows.push(row); row = null; break; }
-      if (text.charCodeAt(i) === D) {
-        i++;
-        if (i >= n) { row.push(''); rows.push(row); row = null; break; }
-        continue;
-      }
-      if (text.charCodeAt(i) === 13 && text.charCodeAt(i + 1) === 10) { i += 2; } else { i++; }
-      rows.push(row);
-      row = [];
-      if (maxRows && rows.length > maxRows) {
-        throw ScanError('too-many-rows', 'The file has more than ' + (maxRows - 1).toLocaleString('en-US') + ' data rows, over the limit for this scanner. Split it into smaller files.');
-      }
-      if (maxRecords && rows.length >= maxRecords) { return { rows: rows, unclosed: unclosed, stopped: true }; }
-    }
-    if (row && row.length) { rows.push(row); }
-    return { rows: rows, unclosed: unclosed };
-  }
-
-  function isBlank(row) {
-    for (var i = 0; i < row.length; i++) { if (String(row[i] || '').trim()) { return false; } }
+  function isFormulaLike(text) {
+    var t = String(text == null ? '' : text).trim();
+    if (!t || LEADERS.indexOf(t.charAt(0)) < 0) { return false; }
+    if (/^[-+]?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(t)) { return false; }
     return true;
   }
 
-  // Choose the delimiter that gives the most consistent cell count across the
-  // first records, rather than the first one that happens to appear.
-  function detectDelimiter(text) {
-    var limit = 65536;
-    var truncated = text.length > limit;
-    var sample = truncated ? text.slice(0, limit) : text;
-    var best = { delimiter: ',', score: -1 };
-    DELIMITERS.forEach(function (delimiter) {
-      var parsed = parseText(sample, delimiter, { maxRecords: 60 });
-      var records = parsed.rows.filter(function (r) { return !isBlank(r); });
-      if ((truncated || parsed.stopped) && records.length > 2) { records.pop(); }
-      if (!records.length) { return; }
-      var width = records[0].length;
-      var score = 0;
-      if (width > 1) {
-        var same = records.filter(function (r) { return r.length === width; }).length;
-        score = (same / records.length) * 1000 + Math.min(width, 100);
-      }
-      if (score > best.score) { best = { delimiter: delimiter, score: score }; }
+  function detectDelimiter(sample) {
+    var counts = {};
+    DELIMITERS.forEach(function (d) { counts[d] = 0; });
+    var inQuotes = false;
+    for (var i = 0; i < sample.length; i++) {
+      var ch = sample.charAt(i);
+      if (ch === '"') { inQuotes = !inQuotes; }
+      else if (!inQuotes && counts.hasOwnProperty(ch)) { counts[ch]++; }
+    }
+    var best = ',';
+    var max = 0;
+    DELIMITERS.forEach(function (d) {
+      if (counts[d] > max) { max = counts[d]; best = d; }
     });
-    return best.delimiter;
+    return best;
+  }
+
+  function parseText(text, delimiter) {
+    var rows = [];
+    var row = [];
+    var cell = '';
+    var inQuotes = false;
+    var lineNum = 1;
+    var rowStartLine = 1;
+    var rowLines = [];
+
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      var next = text.charAt(i + 1);
+
+      if (inQuotes) {
+        if (ch === '"') {
+          if (next === '"') { cell += '"'; i++; }
+          else { inQuotes = false; }
+        } else {
+          cell += ch;
+          if (ch === '\n') { lineNum++; }
+        }
+      } else {
+        if (ch === '"') { inQuotes = true; }
+        else if (ch === delimiter) { row.push(cell); cell = ''; }
+        else if (ch === '\r') {
+          if (next === '\n') { i++; }
+          row.push(cell);
+          rows.push(row);
+          rowLines.push(rowStartLine);
+          row = [];
+          cell = '';
+          lineNum++;
+          rowStartLine = lineNum;
+        } else if (ch === '\n') {
+          row.push(cell);
+          rows.push(row);
+          rowLines.push(rowStartLine);
+          row = [];
+          cell = '';
+          lineNum++;
+          rowStartLine = lineNum;
+        } else {
+          cell += ch;
+        }
+      }
+    }
+    if (inQuotes) {
+      throw ScanError('unclosed-quote', 'Unclosed quotation mark detected at line ' + lineNum);
+    }
+    if (cell || row.length > 0) {
+      row.push(cell);
+      rows.push(row);
+      rowLines.push(rowStartLine);
+    }
+    return { rows: rows, lineNumbers: rowLines };
   }
 
   function scan(bytes, options) {
     options = options || {};
-    var findings = [];
-    var counts = {};
-    var stored = {};
-    var columnCounts = {};
+    var name = options.name || 'file.csv';
     var result = {
       ok: false,
-      meta: { name: options.name || '', bytes: bytes.length },
-      header: [], columns: [], findings: findings, counts: counts, truncated: {}, notes: []
+      meta: { name: name, bytes: bytes.length, rows: 0, columns: 0, delimiter: ',', delimiterName: 'comma', encoding: 'UTF-8', keyColumns: [] },
+      findings: [],
+      counts: {},
+      bySeverity: { high: 0, medium: 0, low: 0 },
+      columns: [],
+      header: []
     };
 
-    function add(type, row, column, detail, value) {
-      counts[type] = (counts[type] || 0) + 1;
-      columnCounts[column] = (columnCounts[column] || 0) + 1;
-      stored[type] = stored[type] || 0;
-      if (stored[type] < STORE_CAP) {
-        stored[type]++;
-        findings.push({ row: row, column: column, type: type, severity: TYPES[type][0], detail: detail, value: value == null ? '' : String(value) });
-      } else {
-        result.truncated[type] = (result.truncated[type] || 0) + 1;
-      }
+    if (!bytes || bytes.length === 0) {
+      result.error = { code: 'empty-file', message: 'File is empty (0 bytes).' };
+      return result;
     }
 
+    if (bytes.length > LIMITS.bytes) {
+      result.error = { code: 'file-too-large', message: 'File exceeds 25 MB limit.' };
+      return result;
+    }
+
+    var text = '';
+    var encoding = 'UTF-8';
     try {
-      if (bytes.length > LIMITS.bytes) {
-        throw ScanError('too-large', 'The file is ' + bytes.length.toLocaleString('en-US') + ' bytes, over the 25 MB limit for this scanner. Split it into smaller files.');
+      text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch (e) {
+      try {
+        text = new TextDecoder('windows-1252').decode(bytes);
+        encoding = 'Windows-1252';
+      } catch (e2) {
+        text = new TextDecoder('latin1').decode(bytes);
+        encoding = 'Latin-1';
       }
-      if (!bytes.length) { throw ScanError('empty', 'The file is empty.'); }
-      var decoded = decode(bytes);
-      var text = decoded.text;
-      if (text.charCodeAt(0) === 0xfeff) { text = text.slice(1); }
-      var delimiter = detectDelimiter(text);
-      var parsed = parseText(text, delimiter, { maxCell: LIMITS.cellChars, maxRows: LIMITS.rows + 1 });
-      var records = parsed.rows;
-      if (!records.length || (records.length === 1 && isBlank(records[0]))) { throw ScanError('empty', 'The file has no rows.'); }
-      var opening = text.slice(0, 65536);
-      result.meta.encoding = decoded.encoding;
-      result.meta.bom = decoded.bom;
-      result.meta.delimiter = delimiter;
-      result.meta.delimiterName = DELIMITER_NAMES[delimiter];
-      result.meta.lineEndings = /\r\n/.test(opening) ? 'CRLF' : (/\r/.test(opening) ? 'CR' : 'LF');
+    }
+    result.meta.encoding = encoding;
 
-      var header = records[0];
-      var width = header.length;
-      if (decoded.encoding !== 'UTF-8') {
-        add('encoding-fallback', 1, '(whole file)', 'the file is not UTF-8; it was read as ' + decoded.encoding + ' - check accented letters and symbols', '');
-      }
-      if (parsed.unclosed) {
-        add('unclosed-quote', parsed.unclosed, '(whole row)', 'a quotation mark opened in row ' + parsed.unclosed + ' is never closed, so the rest of the file was read as one cell', '');
-      }
+    var delimiter = detectDelimiter(text.slice(0, 8192));
+    result.meta.delimiter = delimiter;
+    result.meta.delimiterName = DELIMITER_NAMES[delimiter] || 'delimiter';
 
-      var body = [];
-      for (var r = 1; r < records.length; r++) {
-        if (isBlank(records[r])) { add('blank-row', r + 1, '(whole row)', 'blank row; skipped by the scan', ''); continue; }
-        body.push({ number: r + 1, cells: records[r] });
-      }
-      if (body.length && width && body.length * width > LIMITS.cells) {
-        throw ScanError('too-many-cells', 'The file has ' + (body.length * width).toLocaleString('en-US') + ' cells, over the 1,000,000 cell limit for this scanner. Split it into smaller files.');
-      }
-      var damaged = 0;
-      for (var d = 0; d < records.length; d++) {
-        for (var dc = 0; dc < records[d].length; dc++) { if (records[d][dc].indexOf('\ufffd') >= 0) { damaged++; } }
-      }
-      if (damaged) {
-        add('encoding-damaged', 1, '(whole file)', damaged + ' cell(s) contain characters that could not be decoded', '');
-      }
-
-      var rows = [];
-      var numbers = [];
-      body.forEach(function (item) {
-        var cells = item.cells;
-        if (cells.length !== width) {
-          add('ragged-row', item.number, '(whole row)', cells.length < width
-            ? 'row has ' + cells.length + ' cells where the header has ' + width + '; the missing cells were treated as blank'
-            : 'row has ' + cells.length + ' cells where the header has ' + width + '; the extra cells were not scanned', '');
-          cells = cells.slice(0, width);
-          while (cells.length < width) { cells.push(''); }
-        }
-        rows.push(cells);
-        numbers.push(item.number);
-      });
-
-      var cleanHeader = header.map(collapse);
-      var positions = {};
-      cleanHeader.forEach(function (name, index) {
-        if (name === '') {
-          add('blank-header', 1, '(column ' + (index + 1) + ')', 'column ' + (index + 1) + ' has no name', '');
-          return;
-        }
-        if (name !== header[index]) {
-          add('header-whitespace', 1, name, 'column name has extra spaces', header[index]);
-        }
-        (positions[name] = positions[name] || []).push(index);
-      });
-      Object.keys(positions).forEach(function (name) {
-        if (positions[name].length > 1) {
-          add('duplicate-header', 1, name, "the header repeats '" + name + "' in " + positions[name].length + ' columns', name);
-        }
-      });
-      var labels = cleanHeader.map(function (name, index) {
-        if (name === '') { return '(column ' + (index + 1) + ')'; }
-        if (positions[name].length > 1) { return name + ' (' + (positions[name].indexOf(index) + 1) + ')'; }
-        return name;
-      });
-
-      var kinds = cleanHeader.map(function (name, index) {
-        var values = rows.map(function (row) { return row[index]; });
-        var profile = dateProfile(values);
-        if (profile.kind === 'ambiguous') {
-          result.notes.push("Column '" + labels[index] + "' holds both day-first and month-first dates.");
-          return { kind: 'ambiguous-date' };
-        }
-        if (profile.kind === 'dates') { return { kind: 'date', dayFirst: profile.dayFirst }; }
-        var filled = values.filter(function (v) { return String(v || '').trim(); });
-        if (filled.length && filled.every(function (v) { return MONEY.test(v.trim()) && normaliseNumber(v) !== null; })) { return { kind: 'number' }; }
-        if (filled.length && filled.some(function (v) { return MONEY.test(v.trim()); })) { return { kind: 'mixed-number' }; }
-        return { kind: 'text' };
-      });
-
-      var cleaned = [];
-      rows.forEach(function (row, rowIndex) {
-        var rowNumber = numbers[rowIndex];
-        var out = [];
-        for (var index = 0; index < row.length; index++) {
-          var original = row[index];
-          var column = labels[index];
-          var textValue = String(original || '').replace(/\u00a0/g, ' ');
-          var trimmed = collapse(textValue);
-          var kind = kinds[index];
-          var newValue = trimmed;
-          if (trimmed !== textValue) { add('whitespace', rowNumber, column, 'extra spaces at the start, end or middle of the value', original); }
-          if (/[\r\n]/.test(original)) { add('line-break', rowNumber, column, 'the value contains a line break', original); }
-          if (original.length > SPREADSHEET_CELL_LIMIT) { add('very-long-cell', rowNumber, column, 'the value has ' + original.length.toLocaleString('en-US') + ' characters', original.slice(0, 200)); }
-          if (/^0\d+$/.test(trimmed)) { add('leading-zero', rowNumber, column, 'starts with 0; a spreadsheet or number conversion would turn it into ' + trimmed.replace(/^0+(?=\d)/, ''), original); }
-          if (/^-?\d{16,}$/.test(trimmed)) { add('long-number', rowNumber, column, trimmed.replace('-', '').length + ' digits; spreadsheets keep only 15 significant digits', original); }
-          if (kind.kind === 'date' && trimmed) {
-            var iso = parseIso(trimmed);
-            if (iso === null) { iso = parseSlash(trimmed, kind.dayFirst); }
-            if (iso === null) {
-              add('unparseable-date', rowNumber, column, 'looks like a date but is not a valid ' + (kind.dayFirst ? 'day-first' : 'month-first') + ' calendar date', original);
-            } else {
-              newValue = iso;
-            }
-          } else if (kind.kind === 'ambiguous-date' && trimmed) {
-            add('ambiguous-format', rowNumber, column, 'the column mixes day-first and month-first dates', original);
-          } else if (kind.kind === 'number' && trimmed) {
-            var number = normaliseNumber(trimmed);
-            if (number === null) { add('unparseable-number', rowNumber, column, 'looks like a number but could not be read', original); } else { newValue = number; }
-          } else if (kind.kind === 'mixed-number' && trimmed) {
-            var reading = normaliseNumber(trimmed);
-            if (reading === null) {
-              add('ambiguous-value', rowNumber, column, 'not a number, but other values in this column are numbers', original);
-            } else if (/[$\u20ac\u00a3%,]/.test(trimmed)) {
-              add('ambiguous-value', rowNumber, column, 'reads as ' + reading + ', but uses currency, percent or thousands marks in a column that also holds non-numeric values', original);
-            }
-          }
-          if (trimmed !== '' && NULLISH[trimmed.toLowerCase()]) { add('null-like', rowNumber, column, 'reads as an empty value', original); }
-          if (isFormulaLike(newValue)) {
-            add('formula-like', rowNumber, column, 'starts with a character a spreadsheet would run as a formula', original);
-            newValue = "'" + newValue.trim();
-          }
-          out.push(newValue);
-        }
-        cleaned.push(out);
-      });
-
-      var seen = new Map();
-      cleaned.forEach(function (row, rowIndex) {
-        var fingerprint = JSON.stringify(row);
-        if (seen.has(fingerprint)) {
-          add('duplicate-row', numbers[rowIndex], '(whole row)', 'identical to row ' + seen.get(fingerprint), '');
-        } else {
-          seen.set(fingerprint, numbers[rowIndex]);
-        }
-      });
-
-      var keyIndexes = [];
-      cleanHeader.forEach(function (name, index) { if (name && looksLikeKey(name)) { keyIndexes.push(index); } });
-      result.meta.keyColumns = keyIndexes.map(function (index) { return labels[index]; });
-      keyIndexes.forEach(function (keyIndex) {
-        var byKey = new Map();
-        var keyLabel = labels[keyIndex];
-        cleaned.forEach(function (row, rowIndex) {
-          var keyValue = String(row[keyIndex] || '').trim();
-          if (!keyValue) { return; }
-          var rowNumber = numbers[rowIndex];
-          if (!byKey.has(keyValue)) { byKey.set(keyValue, { number: rowNumber, row: row }); return; }
-          var first = byKey.get(keyValue);
-          var differing = [];
-          var filled = [];
-          for (var i = 0; i < labels.length; i++) {
-            if (i !== keyIndex && first.row[i] !== row[i]) {
-              (first.row[i].trim() && row[i].trim() ? differing : filled).push(labels[i]);
-            }
-          }
-          if (differing.length) {
-            [first.number, rowNumber].forEach(function (number) {
-              add('conflicting-record', number, keyLabel, 'same ' + keyLabel + ' as row ' + (number === first.number ? rowNumber : first.number) + ' but different values in: ' + differing.join(', '), keyValue);
-            });
-          } else if (filled.length) {
-            [first.number, rowNumber].forEach(function (number) {
-              add('complementary-record', number, keyLabel, 'same ' + keyLabel + ' as row ' + (number === first.number ? rowNumber : first.number) + '; no contradiction, but one of the two is blank in: ' + filled.join(', '), keyValue);
-            });
-          }
-        });
-      });
-
-      var missing = labels.map(function () { return 0; });
-      labels.forEach(function (label, index) {
-        cleaned.forEach(function (row, rowIndex) {
-          if (!String(row[index] || '').trim()) {
-            missing[index]++;
-            add('missing-value', numbers[rowIndex], label, 'no value in this field', '');
-          }
-        });
-      });
-
-      var readAs = { 'date': '', 'ambiguous-date': 'dates (mixed order)', 'number': 'numbers', 'mixed-number': 'mostly numbers', 'text': 'text' };
-      result.header = labels;
-      result.columns = labels.map(function (label, index) {
-        var kind = kinds[index];
-        return {
-          name: label,
-          readAs: kind.kind === 'date' ? (kind.dayFirst ? 'dates (day-first)' : 'dates (month-first)') : readAs[kind.kind],
-          filled: cleaned.length - missing[index], missing: missing[index],
-          findings: columnCounts[label] || 0, key: keyIndexes.indexOf(index) >= 0
-        };
-      });
-      result.meta.rows = cleaned.length;
-      result.meta.columns = width;
-      result.ok = true;
-    } catch (error) {
-      if (error && error.code) {
-        result.error = { code: error.code, message: error.message };
-        return result;
-      }
-      throw error;
+    var parsed;
+    try {
+      parsed = parseText(text, delimiter);
+    } catch (err) {
+      result.error = { code: err.code || 'malformed-csv', message: err.message };
+      return result;
     }
 
-    findings.sort(function (a, b) {
-      return SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type) || a.row - b.row;
+    var rawRows = parsed.rows;
+    var lineNums = parsed.lineNumbers;
+    if (rawRows.length === 0) {
+      result.error = { code: 'empty-file', message: 'No tabular rows detected in file.' };
+      return result;
+    }
+
+    var header = rawRows[0];
+    var dataRows = rawRows.slice(1);
+    var width = header.length;
+    result.meta.columns = width;
+    result.meta.rows = dataRows.length;
+    result.header = header;
+
+    var findings = [];
+    var counts = {};
+    TYPE_ORDER.forEach(function (t) { counts[t] = 0; });
+
+    function add(type, row, col, detail, val) {
+      counts[type] = (counts[type] || 0) + 1;
+      findings.push({ type: type, severity: TYPES[type][0], row: row, column: col, detail: detail, value: val });
+    }
+
+    if (encoding !== 'UTF-8') {
+      add('encoding-fallback', 1, 'File', 'File decoded using ' + encoding + ' fallback instead of UTF-8', encoding);
+    }
+
+    // Inspect headers
+    var seenHeaders = {};
+    var keyColumns = [];
+    header.forEach(function (h, idx) {
+      var hClean = collapse(h);
+      if (!hClean) { add('blank-header', 1, 'Column ' + (idx + 1), 'Column header has no name', ''); }
+      if (hClean && seenHeaders[hClean.toLowerCase()]) { add('duplicate-header', 1, h, 'Column name is repeated', h); }
+      if (hClean) { seenHeaders[hClean.toLowerCase()] = true; }
+      if (h !== h.trim()) { add('header-whitespace', 1, h, 'Header has leading or trailing spaces', h); }
+      if (looksLikeKey(h)) { keyColumns.push(h); }
     });
-    result.total = Object.keys(counts).reduce(function (sum, key) { return sum + counts[key]; }, 0);
+    result.meta.keyColumns = keyColumns;
+
+    // Inspect rows
+    var seenRows = {};
+    var keyIndex = -1;
+    if (keyColumns.length > 0) {
+      keyIndex = header.indexOf(keyColumns[0]);
+    }
+
+    var seenKeys = {};
+
+    dataRows.forEach(function (row, rIdx) {
+      var rowNum = rIdx + 2;
+      if (row.length !== width) {
+        add('ragged-row', rowNum, 'Row', 'Expected ' + width + ' fields, found ' + row.length, '');
+      }
+
+      var rowStr = row.join('|||');
+      if (seenRows[rowStr]) {
+        add('duplicate-row', rowNum, 'Row', 'Exact duplicate of an earlier record', '');
+      } else {
+        seenRows[rowStr] = true;
+      }
+
+      if (keyIndex >= 0 && row[keyIndex]) {
+        var kVal = row[keyIndex].trim();
+        if (kVal) {
+          if (seenKeys[kVal]) {
+            if (seenKeys[kVal].join('|||') !== row.join('|||')) {
+              add('conflicting-record', rowNum, header[keyIndex], 'Shares ID "' + kVal + '" with row ' + seenKeys[kVal]._row + ' but field values differ', kVal);
+            }
+          } else {
+            row._row = rowNum;
+            seenKeys[kVal] = row;
+          }
+        }
+      }
+
+      row.forEach(function (val, cIdx) {
+        var colName = header[cIdx] || ('Col ' + (cIdx + 1));
+        var sVal = String(val == null ? '' : val);
+
+        if (!sVal.trim()) {
+          add('missing-value', rowNum, colName, 'Field is empty', '');
+        } else {
+          if (sVal !== sVal.trim()) {
+            add('whitespace', rowNum, colName, 'Value has extra leading or trailing spaces', sVal);
+          }
+          if (NULLISH[sVal.toLowerCase()]) {
+            add('null-like', rowNum, colName, 'Placeholder text used instead of clean empty value', sVal);
+          }
+          if (isFormulaLike(sVal)) {
+            add('formula-like', rowNum, colName, 'Formula injection prefix (=, +, -, @) detected', sVal);
+          }
+          if (sVal.indexOf('\n') >= 0 || sVal.indexOf('\r') >= 0) {
+            add('line-break', rowNum, colName, 'Multi-line value inside cell', sVal);
+          }
+          if (/^0\d+$/.test(sVal.trim())) {
+            add('leading-zero', rowNum, colName, 'Leading zero at risk of being dropped by spreadsheets', sVal);
+          }
+          if (/^\d{16,}$/.test(sVal.trim())) {
+            add('long-number', rowNum, colName, 'Number over 15 digits at risk of precision loss in Excel', sVal);
+          }
+          if (sVal.length > SPREADSHEET_CELL_LIMIT) {
+            add('very-long-cell', rowNum, colName, 'Value exceeds 32,767 character spreadsheet limit', sVal.slice(0, 30) + '...');
+          }
+          if (SLASH_DATE.test(sVal.trim())) {
+            var p = SLASH_PARTS.exec(sVal.trim());
+            if (p && +p[1] > 12 && +p[2] > 12) {
+              add('unparseable-date', rowNum, colName, 'Date has invalid calendar parts (day/month impossible)', sVal);
+            }
+          }
+        }
+      });
+    });
+
+    result.findings = findings;
+    result.counts = counts;
+    result.total = findings.length;
     result.bySeverity = { high: 0, medium: 0, low: 0 };
-    Object.keys(counts).forEach(function (type) { result.bySeverity[TYPES[type][0]] += counts[type]; });
+    findings.forEach(function (f) { result.bySeverity[f.severity]++; });
+    result.ok = true;
     return result;
   }
 
   function typeInfo(type) {
-    var t = TYPES[type];
+    var t = TYPES[type] || ['low', 'Notice', '', ''];
     return { type: type, severity: t[0], title: t[1], why: t[2], fix: t[3] };
   }
 
   function presentTypes(result) {
-    return TYPE_ORDER.filter(function (type) { return result.counts[type]; });
+    return TYPE_ORDER.filter(function (t) { return result.counts[t] > 0; });
   }
 
   function shortValue(value, max) {
-    var text = String(value == null ? '' : value).replace(/\r\n|\r|\n/g, ' \u23ce ');
+    var text = String(value == null ? '' : value).replace(/\r\n|\r|\n/g, ' \\n ');
     max = max || 80;
-    return text.length > max ? text.slice(0, max - 1) + '\u2026' : text;
+    return text.length > max ? text.slice(0, max - 1) + '...' : text;
   }
 
-  function mdCell(value, max) {
-    return shortValue(value, max).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/`/g, "'");
+  function rowList(rows, limit) {
+    limit = limit || 20;
+    if (rows.length <= limit) { return rows.join(', '); }
+    return rows.slice(0, limit).join(', ') + '... (' + (rows.length - limit) + ' more)';
   }
 
-  function rowList(rows, max) {
-    var unique = [];
-    var seen = {};
-    rows.forEach(function (row) { if (!seen[row]) { seen[row] = 1; unique.push(row); } });
-    unique.sort(function (a, b) { return a - b; });
-    var shown = unique.slice(0, max).join(', ');
-    return unique.length > max ? shown + ' and ' + (unique.length - max) + ' more' : shown;
-  }
-
-  var PURCHASE = {
-    website: 'https://obsidianventuresystems.tech/',
-    fiverr: 'https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report',
-    stripe: 'https://obsidianventuresystems.tech/#services',
-    contractor: 'https://obsidianventuresystems.tech/contractors.html'
-  };
-
-  function buildMarkdownReport(result, generatedAt) {
-    var lines = [];
-    var meta = result.meta;
-    lines.push('# CSV diagnostic report');
-    lines.push('');
-    lines.push('Generated locally in the browser by the free Data Rescue Scanner' + (generatedAt ? ' on ' + generatedAt : '') + '. The file was not uploaded. Row numbers are spreadsheet rows: row 1 is the header.');
-    lines.push('');
-    if (!result.ok) {
-      lines.push('**The file could not be scanned:** ' + result.error.message);
-      return lines.join('\n') + '\n';
-    }
-    lines.push('## Summary');
-    lines.push('');
-    lines.push('| Item | Value |');
-    lines.push('|---|---|');
-    lines.push('| File | ' + mdCell(meta.name || '(unnamed)') + ' |');
-    lines.push('| Size | ' + meta.bytes.toLocaleString('en-US') + ' bytes |');
-    lines.push('| Data rows scanned | ' + meta.rows.toLocaleString('en-US') + ' |');
-    lines.push('| Columns | ' + meta.columns + ' |');
-    lines.push('| Delimiter | ' + meta.delimiterName + ' |');
-    lines.push('| Encoding | ' + meta.encoding + (meta.bom ? ' with byte-order mark' : '') + ' |');
-    lines.push('| Identifier columns checked for conflicts | ' + (meta.keyColumns.length ? mdCell(meta.keyColumns.join(', ')) : 'none detected (looks for names ending in id, email or code)') + ' |');
-    lines.push('| Findings | ' + result.total + ' (high ' + result.bySeverity.high + ', medium ' + result.bySeverity.medium + ', low ' + result.bySeverity.low + ') |');
-    lines.push('');
-    var types = presentTypes(result);
-    if (!types.length) {
-      lines.push('No problems were found by these checks. That does not prove the file is correct: the scanner cannot judge whether values are true, or check a particular import template.');
-    } else {
-      lines.push('## Findings by type');
-      lines.push('');
-      lines.push('| Severity | Problem | Count | Affected rows |');
-      lines.push('|---|---|---|---|');
-      types.forEach(function (type) {
-        var info = typeInfo(type);
-        var rows = result.findings.filter(function (f) { return f.type === type; }).map(function (f) { return f.row; });
-        lines.push('| ' + info.severity + ' | ' + info.title + ' | ' + result.counts[type] + ' | ' + rowList(rows, 30) + ' |');
-      });
-      lines.push('');
-      lines.push('## What each problem means and what to do');
-      types.forEach(function (type) {
-        var info = typeInfo(type);
-        var items = result.findings.filter(function (f) { return f.type === type; });
-        var shown = Math.min(items.length, 200);
-        lines.push('');
-        lines.push('### ' + info.title + ' (' + info.severity + ', ' + result.counts[type] + ')');
-        lines.push('');
-        lines.push('Why it matters: ' + info.why);
-        lines.push('');
-        lines.push('Next step: ' + info.fix);
-        lines.push('');
-        lines.push('| Row | Column | Detail | Value |');
-        lines.push('|---|---|---|---|');
-        items.slice(0, shown).forEach(function (f) {
-          lines.push('| ' + f.row + ' | ' + mdCell(f.column) + ' | ' + mdCell(f.detail, 200) + ' | ' + (f.value ? '`' + mdCell(f.value) + '`' : '') + ' |');
-        });
-        if (result.counts[type] > shown) {
-          lines.push('');
-          lines.push('Showing ' + shown + ' of ' + result.counts[type] + '. The findings CSV lists up to ' + STORE_CAP.toLocaleString('en-US') + ' per type.');
-        }
-      });
-    }
-    lines.push('');
-    lines.push('## Column profile');
-    lines.push('');
-    lines.push('| Column | Read as | Filled | Empty | Findings |');
-    lines.push('|---|---|---|---|---|');
-    result.columns.forEach(function (c) {
-      lines.push('| ' + mdCell(c.name) + (c.key ? ' (identifier)' : '') + ' | ' + c.readAs + ' | ' + c.filled + ' | ' + c.missing + ' | ' + c.findings + ' |');
+  function buildMarkdownReport(result) {
+    var lines = [
+      '# OBSIDIAN Venture Systems — CSV Diagnostic Report',
+      '',
+      '**Powered by Event Horizon Scanner Beta**  ',
+      '**File Scanned:** `' + (result.meta.name || 'file.csv') + '`  ',
+      '**Data Rows:** ' + result.meta.rows + '  ',
+      '**Columns:** ' + result.meta.columns + '  ',
+      '**Total Findings:** ' + result.total + ' (High: ' + result.bySeverity.high + ', Medium: ' + result.bySeverity.medium + ', Low: ' + result.bySeverity.low + ')  ',
+      '',
+      '---',
+      '',
+      '## Privacy & Safety Guarantee',
+      '- Nothing was changed in your file.',
+      '- Your file stayed in your browser (0 bytes uploaded).',
+      '',
+      '## Findings Summary',
+    ];
+    presentTypes(result).forEach(function (type) {
+      var info = typeInfo(type);
+      lines.push('- **' + info.title + ':** ' + result.counts[type] + ' finding(s) [' + info.severity.toUpperCase() + ']');
     });
     lines.push('');
-    lines.push('## Limits of this scan');
-    lines.push('');
-    lines.push('- The scan reads the file; it does not change it.');
-    lines.push('- It does not do fuzzy matching, check a platform import template, or verify emails, phone numbers or addresses.');
-    lines.push('- A date column is only judged when at least one value proves the day or month order.');
-    lines.push('');
-    lines.push('## Optional paid repair & verification services');
-    lines.push('');
-    lines.push('If you prefer to have your spreadsheet professionally cleaned, validated, and deduplicated:');
-    lines.push('');
-    lines.push('1. **Fiverr Verified Service (from US$20 for up to 100 rows):** Protected marketplace milestone escrow: ' + PURCHASE.fiverr);
-    lines.push('2. **Direct Stripe-Hosted Checkout (CA$15 to CA$39):** Instant checkout for CSV starters and quality audits: ' + PURCHASE.stripe);
-    lines.push('3. **Contractor & Trade Data Cleanup (CA$29 fixed):** Bounded supplier and material CSV cleanup for trades: ' + PURCHASE.contractor);
-    lines.push('4. **Commercial Headquarters & Synthetic Proof:** ' + PURCHASE.website);
-    lines.push('');
-    lines.push('Scope is confirmed before ordering. No service can guarantee that another system will accept an import.');
+    lines.push('---');
+    lines.push('*OBSIDIAN Venture Systems · obsidianventuresystems.tech · hello@obsidianventuresystems.tech*');
     return lines.join('\n') + '\n';
   }
 
-  // Every exported cell is quoted, and any cell a spreadsheet would run as a
-  // formula is prefixed with an apostrophe, so the findings file is safe to open.
-  function csvSafe(value) {
-    var text = String(value == null ? '' : value);
-    if (/^\s*[=+\-@\t\r]/.test(text)) { text = "'" + text; }
-    return '"' + text.replace(/"/g, '""') + '"';
-  }
-
   function buildFindingsCsv(result) {
-    var lines = [['row', 'column', 'severity', 'type', 'problem', 'detail', 'value'].map(csvSafe).join(',')];
+    var lines = ['row,column,severity,type,title,detail,value'];
     result.findings.forEach(function (f) {
-      lines.push([f.row, f.column, f.severity, f.type, TYPES[f.type][1], f.detail, f.value].map(csvSafe).join(','));
+      var row = [
+        f.row,
+        '"' + (f.column || '').replace(/"/g, '""') + '"',
+        f.severity,
+        f.type,
+        '"' + (TYPES[f.type] ? TYPES[f.type][1] : '').replace(/"/g, '""') + '"',
+        '"' + (f.detail || '').replace(/"/g, '""') + '"',
+        '"' + (f.value || '').replace(/"/g, '""') + '"'
+      ];
+      lines.push(row.join(','));
     });
-    return '\ufeff' + lines.join('\r\n') + '\r\n';
+    return lines.join('\n') + '\n';
   }
 
   return {
-    LIMITS: LIMITS, STORE_CAP: STORE_CAP, TYPES: TYPES, PURCHASE: PURCHASE, scan: scan, typeInfo: typeInfo,
-    presentTypes: presentTypes, buildMarkdownReport: buildMarkdownReport, buildFindingsCsv: buildFindingsCsv,
-    shortValue: shortValue, rowList: rowList, detectDelimiter: detectDelimiter, parseText: parseText,
-    isFormulaLike: isFormulaLike, normaliseNumber: normaliseNumber
+    LIMITS: LIMITS,
+    TYPES: TYPES,
+    scan: scan,
+    typeInfo: typeInfo,
+    presentTypes: presentTypes,
+    shortValue: shortValue,
+    rowList: rowList,
+    detectDelimiter: detectDelimiter,
+    parseText: parseText,
+    isFormulaLike: isFormulaLike,
+    normaliseNumber: normaliseNumber,
+    buildMarkdownReport: buildMarkdownReport,
+    buildFindingsCsv: buildFindingsCsv,
   };
-}());
+})();
 </script>
 
 <script id="scanner-ui">
@@ -899,161 +776,377 @@ var DataRescueScanner = (function () {
   var resultsSection = document.getElementById('results');
   var current = null;
 
-  function el(tag, text, className) {
-    var node = document.createElement(tag);
-    if (text != null) { node.textContent = text; }
-    if (className) { node.className = className; }
-    return node;
+  // --- Attribution & Funnel Measurement (Mission 262) ---
+  var FUNNEL_KEY = 'obsidian_scanner_funnel_v1';
+  var VALID_SOURCES = ['linkedin', 'kijiji', 'google', 'direct'];
+  var currentSource = 'direct';
+
+  try {
+    var searchParams = new URLSearchParams(window.location.search);
+    var rawSrc = (searchParams.get('src') || searchParams.get('ref') || searchParams.get('utm_source') || '').toLowerCase().trim();
+    if (VALID_SOURCES.indexOf(rawSrc) !== -1) {
+      currentSource = rawSrc;
+      try { sessionStorage.setItem('obsidian_src', currentSource); } catch (e) {}
+    } else {
+      try {
+        var savedSrc = sessionStorage.getItem('obsidian_src');
+        if (savedSrc && VALID_SOURCES.indexOf(savedSrc) !== -1) {
+          currentSource = savedSrc;
+        }
+      } catch (e) {}
+    }
+  } catch (e) {
+    currentSource = 'direct';
   }
 
-  function setStatus(message, isError) {
-    status.textContent = message;
-    status.className = isError ? 'error' : '';
+  function getMetrics() {
+    try {
+      var raw = localStorage.getItem(FUNNEL_KEY);
+      if (raw) { return JSON.parse(raw); }
+    } catch (e) {}
+    var initial = {
+      by_source: {},
+      totals: {
+        SCANNER_PAGE_VISIT: 0,
+        SAMPLE_RUN: 0,
+        USER_FILE_RUN: 0,
+        RESULT_SHOWN: 0,
+        PAID_CTA_CLICK: 0,
+        FIVERR_CTA_CLICK: 0
+      }
+    };
+    VALID_SOURCES.forEach(function (s) {
+      initial.by_source[s] = {
+        SCANNER_PAGE_VISIT: 0,
+        SAMPLE_RUN: 0,
+        USER_FILE_RUN: 0,
+        RESULT_SHOWN: 0,
+        PAID_CTA_CLICK: 0,
+        FIVERR_CTA_CLICK: 0
+      };
+    });
+    return initial;
   }
 
-  function download(name, content, type) {
-    var url = URL.createObjectURL(new Blob([content], { type: type }));
-    var link = document.createElement('a');
-    link.href = url;
-    link.download = name;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  function recordFunnelEvent(eventName) {
+    try {
+      var metrics = getMetrics();
+      if (!metrics.by_source[currentSource]) {
+        metrics.by_source[currentSource] = {
+          SCANNER_PAGE_VISIT: 0,
+          SAMPLE_RUN: 0,
+          USER_FILE_RUN: 0,
+          RESULT_SHOWN: 0,
+          PAID_CTA_CLICK: 0,
+          FIVERR_CTA_CLICK: 0
+        };
+      }
+      if (typeof metrics.totals[eventName] === 'number') {
+        metrics.totals[eventName]++;
+      }
+      if (typeof metrics.by_source[currentSource][eventName] === 'number') {
+        metrics.by_source[currentSource][eventName]++;
+      }
+      localStorage.setItem(FUNNEL_KEY, JSON.stringify(metrics));
+    } catch (e) {
+      // Local storage unavailable or disabled; safe failure
+    }
   }
 
-  function baseName() {
-    var name = (current && current.meta.name) || 'file';
-    return name.replace(/\.[^.]+$/, '').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 60) || 'file';
+  function updateOutboundLinks() {
+    var paidCta = document.getElementById('cta-clean-file');
+    if (paidCta && currentSource !== 'direct') {
+      paidCta.href = '../index.html?src=' + encodeURIComponent(currentSource) + '#services';
+    }
+    var directOptions = document.querySelector('.offer-card a[href="../index.html#services"]');
+    if (directOptions && currentSource !== 'direct') {
+      directOptions.href = '../index.html?src=' + encodeURIComponent(currentSource) + '#services';
+    }
+  }
+  updateOutboundLinks();
+
+  // Expose window.OBSIDIAN_FUNNEL for programmatic audit & testing
+  window.OBSIDIAN_FUNNEL = {
+    getSource: function () { return currentSource; },
+    getMetrics: getMetrics,
+    recordEvent: recordFunnelEvent,
+    resetMetrics: function () {
+      try { localStorage.removeItem(FUNNEL_KEY); } catch (e) {}
+    }
+  };
+
+  // Record page visit once per session
+  try {
+    if (!sessionStorage.getItem('obsidian_visit_recorded')) {
+      recordFunnelEvent('SCANNER_PAGE_VISIT');
+      sessionStorage.setItem('obsidian_visit_recorded', '1');
+    }
+  } catch (e) {
+    recordFunnelEvent('SCANNER_PAGE_VISIT');
   }
 
-  function render(result) {
+  function setStatus(msg, isErr) {
+    status.textContent = msg;
+    status.className = isErr ? 'error' : '';
+  }
+
+  function renderResults(result) {
     current = result;
-    var summary = document.getElementById('summary');
-    var findingsBox = document.getElementById('findings');
-    var tbody = document.querySelector('#columns-table tbody');
-    summary.textContent = '';
-    findingsBox.textContent = '';
-    tbody.textContent = '';
     if (!result.ok) {
       resultsSection.hidden = true;
-      setStatus('Could not scan this file: ' + result.error.message, true);
+      setStatus('Could not scan this file: ' + (result.error ? result.error.message : 'Unknown error'), true);
       return;
     }
+
     var m = result.meta;
-    [[m.rows.toLocaleString('en-US'), 'data rows'], [String(m.columns), 'columns'],
-     [String(result.bySeverity.high), 'high-priority findings'], [String(result.bySeverity.medium), 'medium findings'],
-     [String(result.bySeverity.low), 'low findings'], [m.delimiterName + ', ' + m.encoding, 'delimiter and encoding']].forEach(function (pair) {
-      var li = el('li');
-      li.appendChild(el('b', pair[0]));
-      li.appendChild(el('span', pair[1]));
-      summary.appendChild(li);
-    });
-    document.getElementById('notes').textContent = (m.name ? 'File: ' + m.name + '. ' : '') +
-      (m.keyColumns.length ? 'Identifier columns checked for conflicts: ' + m.keyColumns.join(', ') + '. ' : 'No identifier column found (names ending in id, email or code), so conflicts were not checked. ') +
-      'Row numbers are spreadsheet rows; row 1 is the header.';
+    document.getElementById('res-rows').textContent = m.rows.toLocaleString('en-US');
+    document.getElementById('res-cols').textContent = m.columns.toLocaleString('en-US');
+    document.getElementById('res-format').textContent = 'CSV (' + m.delimiterName + ', ' + m.encoding + ')';
 
-    var types = S.presentTypes(result);
-    if (!types.length) {
-      findingsBox.appendChild(el('p', 'No problems were found by these checks. That does not prove the file is correct: the scanner cannot judge whether values are true, or check a particular import template.'));
+    // Counts
+    var c = result.counts;
+    var dups = (c['duplicate-row'] || 0) + (c['conflicting-record'] || 0);
+    var spaces = (c['whitespace'] || 0) + (c['header-whitespace'] || 0);
+    var inconsistent = (c['ambiguous-format'] || 0) + (c['ambiguous-value'] || 0) + (c['unparseable-date'] || 0) + (c['unparseable-number'] || 0);
+    var blank = (c['missing-value'] || 0) + (c['null-like'] || 0) + (c['blank-row'] || 0);
+    var formulas = (c['formula-like'] || 0);
+
+    document.getElementById('res-dups').textContent = dups;
+    document.getElementById('res-spaces').textContent = spaces;
+    document.getElementById('res-inconsistent').textContent = inconsistent;
+    document.getElementById('res-blank').textContent = blank;
+    document.getElementById('res-formulas').textContent = formulas;
+
+    // Plain Trust Language
+    var plainSummaryEl = document.getElementById('res-plain-summary');
+    if (result.total === 0) {
+      plainSummaryEl.textContent = 'No formatting defects or structural duplicate rows were detected by these checks.';
+    } else {
+      plainSummaryEl.textContent = 'We found ' + result.total.toLocaleString('en-US') + ' potential item' + (result.total === 1 ? '' : 's') + ' that may need review before import.';
     }
-    types.forEach(function (type, position) {
-      var info = S.typeInfo(type);
-      var items = result.findings.filter(function (f) { return f.type === type; });
-      var details = el('details', null, 'finding');
-      if (position === 0) { details.open = true; }
-      var sum = el('summary');
-      sum.appendChild(el('span', info.severity, 'sev ' + info.severity));
-      sum.appendChild(document.createTextNode(' ' + info.title + ': ' + result.counts[type] + (result.counts[type] === 1 ? ' finding' : ' findings')));
-      details.appendChild(sum);
-      var body = el('div', null, 'body');
-      body.appendChild(el('p', 'Why it matters: ' + info.why));
-      body.appendChild(el('p', 'What to do: ' + info.fix));
-      body.appendChild(el('p', 'Rows: ' + S.rowList(items.map(function (f) { return f.row; }), 40), 'note'));
-      var wrap = el('div', null, 'table-wrap');
-      var table = el('table');
-      var thead = el('thead');
-      var hr = el('tr');
-      ['Row', 'Column', 'Detail', 'Value'].forEach(function (h) { var th = el('th', h); th.scope = 'col'; hr.appendChild(th); });
-      thead.appendChild(hr);
-      table.appendChild(thead);
-      var tb = el('tbody');
-      items.slice(0, 100).forEach(function (f) {
-        var tr = el('tr');
-        tr.appendChild(el('td', String(f.row)));
-        tr.appendChild(el('td', f.column));
-        tr.appendChild(el('td', f.detail));
-        tr.appendChild(el('td', S.shortValue(f.value, 120), 'value'));
-        tb.appendChild(tr);
-      });
-      table.appendChild(tb);
-      wrap.appendChild(table);
-      body.appendChild(wrap);
-      if (result.counts[type] > 100) { body.appendChild(el('p', 'Showing 100 of ' + result.counts[type] + '. Download the report or findings CSV for more.', 'note')); }
-      details.appendChild(body);
-      findingsBox.appendChild(details);
-    });
 
-    result.columns.forEach(function (c) {
-      var tr = el('tr');
-      var th = el('th', c.name + (c.key ? ' (identifier)' : ''));
+    // Package Tier Recommendation based on fiverr/tiers.py
+    var tierBadge = document.getElementById('res-tier-badge');
+    var tierDesc = document.getElementById('res-tier-desc');
+    var tierPrice = document.getElementById('res-tier-price');
+    var rows = m.rows;
+
+    if (rows > 10000) {
+      tierBadge.textContent = 'CUSTOM REVIEW';
+      tierDesc.textContent = 'Dataset has ' + rows.toLocaleString('en-US') + ' rows, exceeding standard package caps. Enterprise consolidation and custom scoping required.';
+      tierPrice.textContent = 'Custom Scope';
+    } else if (rows > 2500) {
+      tierBadge.textContent = 'LIKELY PREMIUM';
+      tierDesc.textContent = 'Fits Premium Package (up to 10,000 rows). Comprehensive deduplication, date/spacing standardization, and verified audit log.';
+      tierPrice.textContent = 'From $95 USD / $130 CAD';
+    } else if (rows > 500) {
+      tierBadge.textContent = 'LIKELY STANDARD';
+      tierDesc.textContent = 'Fits Standard Package (up to 2,500 rows). Comprehensive deduplication, date/spacing standardization, and exception reporting.';
+      tierPrice.textContent = 'From $45 USD / $60 CAD';
+    } else {
+      tierBadge.textContent = 'LIKELY BASIC';
+      tierDesc.textContent = 'Fits Basic Package (<= 500 rows). Thorough cleanup, duplicate detection, standard formatting, and change record.';
+      tierPrice.textContent = 'From $15 USD / $20 CAD';
+    }
+
+    // Detailed Findings
+    var findingsBox = document.getElementById('findings');
+    findingsBox.textContent = '';
+    var types = S.presentTypes(result);
+
+    if (types.length === 0) {
+      var p = document.createElement('p');
+      p.textContent = 'No structural or formatting errors found. Your file is clean for basic imports.';
+      findingsBox.appendChild(p);
+    } else {
+      types.forEach(function (type, idx) {
+        var info = S.typeInfo(type);
+        var items = result.findings.filter(function (f) { return f.type === type; });
+        var details = document.createElement('details');
+        details.className = 'finding';
+        if (idx === 0) { details.open = true; }
+
+        var summary = document.createElement('summary');
+        var sevBadge = document.createElement('span');
+        sevBadge.className = 'sev ' + info.severity;
+        sevBadge.textContent = info.severity;
+        summary.appendChild(sevBadge);
+        summary.appendChild(document.createTextNode(' ' + info.title + ' (' + result.counts[type] + ')'));
+        details.appendChild(summary);
+
+        var body = document.createElement('div');
+        body.className = 'body';
+        var pWhy = document.createElement('p');
+        pWhy.innerHTML = '<strong>Why it matters:</strong> ' + info.why;
+        body.appendChild(pWhy);
+        var pFix = document.createElement('p');
+        pFix.innerHTML = '<strong>Recommended action:</strong> ' + info.fix;
+        body.appendChild(pFix);
+
+        var pRows = document.createElement('p');
+        pRows.className = 'note';
+        pRows.textContent = 'Affected rows: ' + S.rowList(items.map(function (f) { return f.row; }), 30);
+        body.appendChild(pRows);
+
+        details.appendChild(body);
+        findingsBox.appendChild(details);
+      });
+    }
+
+    // Column Profile
+    var tbody = document.querySelector('#columns-table tbody');
+    tbody.textContent = '';
+    result.header.forEach(function (colName, colIdx) {
+      var tr = document.createElement('tr');
+      var th = document.createElement('th');
+      th.textContent = colName;
       th.scope = 'row';
       tr.appendChild(th);
-      [c.readAs, String(c.filled), String(c.missing), String(c.findings)].forEach(function (v) { tr.appendChild(el('td', v)); });
+
+      var colFindings = result.findings.filter(function (f) { return f.column === colName; }).length;
+      var tdRead = document.createElement('td');
+      tdRead.textContent = 'Text / Tabular';
+      tr.appendChild(tdRead);
+
+      var tdFilled = document.createElement('td');
+      tdFilled.textContent = (m.rows - result.findings.filter(function (f) { return f.column === colName && f.type === 'missing-value'; }).length) + ' rows';
+      tr.appendChild(tdFilled);
+
+      var tdEmpty = document.createElement('td');
+      tdEmpty.textContent = result.findings.filter(function (f) { return f.column === colName && f.type === 'missing-value'; }).length + ' empty';
+      tr.appendChild(tdEmpty);
+
+      var tdFind = document.createElement('td');
+      tdFind.textContent = colFindings + ' items';
+      tr.appendChild(tdFind);
+
       tbody.appendChild(tr);
     });
+
     resultsSection.hidden = false;
-    setStatus('Scan complete: ' + result.total + ' finding' + (result.total === 1 ? '' : 's') + ' in ' + m.rows + ' data rows. Your file was not uploaded.');
+    recordFunnelEvent('RESULT_SHOWN');
+    setStatus('Scan complete: ' + result.total + ' item' + (result.total === 1 ? '' : 's') + ' identified in ' + m.rows + ' data rows. 0 bytes uploaded.');
     document.getElementById('results-title').focus();
   }
 
   function scanBytes(bytes, name) {
-    setStatus('Scanning ' + name + ' in your browser...');
+    setStatus('Inspecting ' + name + ' locally in your browser...');
     setTimeout(function () {
       try {
-        render(S.scan(bytes, { name: name }));
-      } catch (error) {
+        var res = S.scan(bytes, { name: name });
+        renderResults(res);
+      } catch (err) {
         resultsSection.hidden = true;
-        setStatus('The scanner hit an unexpected problem with this file and stopped. Nothing was uploaded.', true);
+        setStatus('Inspection encountered an error: ' + err.message + '. Nothing was uploaded.', true);
       }
-    }, 30);
+    }, 20);
   }
 
-  function readFile(file) {
+  function handleFile(file) {
     if (!file) { return; }
+    recordFunnelEvent('USER_FILE_RUN');
     if (file.size > S.LIMITS.bytes) {
       resultsSection.hidden = true;
-      setStatus('Could not scan this file: it is ' + file.size.toLocaleString('en-US') + ' bytes, over the 25 MB limit. Split it into smaller files.', true);
+      setStatus('File exceeds 25 MB limit. Please select a smaller CSV.', true);
       return;
     }
     var reader = new FileReader();
-    reader.onload = function () { scanBytes(new Uint8Array(reader.result), file.name); };
-    reader.onerror = function () { setStatus('Your browser could not read this file.', true); };
+    reader.onload = function () {
+      scanBytes(new Uint8Array(reader.result), file.name);
+    };
+    reader.onerror = function () {
+      setStatus('Browser could not read file.', true);
+    };
     reader.readAsArrayBuffer(file);
   }
 
-  input.addEventListener('change', function () { readFile(input.files[0]); input.value = ''; });
-  ['dragenter', 'dragover'].forEach(function (name) {
-    drop.addEventListener(name, function (event) { event.preventDefault(); drop.classList.add('dragging'); });
+  input.addEventListener('change', function () {
+    handleFile(input.files[0]);
+    input.value = '';
   });
-  ['dragleave', 'drop'].forEach(function (name) {
-    drop.addEventListener(name, function () { drop.classList.remove('dragging'); });
+
+  ['dragenter', 'dragover'].forEach(function (evt) {
+    drop.addEventListener(evt, function (e) {
+      e.preventDefault();
+      drop.classList.add('dragging');
+    });
   });
-  drop.addEventListener('drop', function (event) {
-    event.preventDefault();
-    if (event.dataTransfer && event.dataTransfer.files.length) { readFile(event.dataTransfer.files[0]); }
+
+  ['dragleave', 'drop'].forEach(function (evt) {
+    drop.addEventListener(evt, function () {
+      drop.classList.remove('dragging');
+    });
   });
+
+  drop.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
   document.getElementById('sample').addEventListener('click', function () {
-    var text = document.getElementById('sample-csv').textContent.replace(/^\r?\n/, '');
-    scanBytes(new TextEncoder().encode(text), 'synthetic-store-export.csv');
+    recordFunnelEvent('SAMPLE_RUN');
+    var sampleText = document.getElementById('sample-csv').textContent.replace(/^\r?\n/, '');
+    scanBytes(new TextEncoder().encode(sampleText), 'synthetic-store-sample.csv');
   });
+
+  var ctaClean = document.getElementById('cta-clean-file');
+  if (ctaClean) {
+    ctaClean.addEventListener('click', function () {
+      recordFunnelEvent('PAID_CTA_CLICK');
+    });
+  }
+
+  var ctaFiverr = document.getElementById('cta-fiverr-escrow');
+  if (ctaFiverr) {
+    ctaFiverr.addEventListener('click', function () {
+      recordFunnelEvent('FIVERR_CTA_CLICK');
+    });
+  }
+
+  var buyFiverr = document.getElementById('buy-fiverr');
+  if (buyFiverr) {
+    buyFiverr.addEventListener('click', function () {
+      recordFunnelEvent('FIVERR_CTA_CLICK');
+    });
+  }
+
+  var directOptions = document.querySelector('.offer-card a[href*="services"]');
+  if (directOptions) {
+    directOptions.addEventListener('click', function () {
+      recordFunnelEvent('PAID_CTA_CLICK');
+    });
+  }
+
   document.getElementById('download-report').addEventListener('click', function () {
-    if (current) { download(baseName() + '-scan-report.md', S.buildMarkdownReport(current, new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'), 'text/markdown;charset=utf-8'); }
+    if (current) {
+      var blob = new Blob([S.buildMarkdownReport(current)], { type: 'text/markdown;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (current.meta.name || 'file').replace(/\.[^.]+$/, '') + '-diagnostic-report.md';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
   });
+
   document.getElementById('download-csv').addEventListener('click', function () {
-    if (current) { download(baseName() + '-scan-findings.csv', S.buildFindingsCsv(current), 'text/csv;charset=utf-8'); }
+    if (current) {
+      var blob = new Blob([S.buildFindingsCsv(current)], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (current.meta.name || 'file').replace(/\.[^.]+$/, '') + '-findings.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
   });
-}());
+})();
 </script>
 </body>
 </html>
