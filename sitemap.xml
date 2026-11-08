@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/scanner/</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/scanner/</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/csv-import-guide.html</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/contractors.html</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://obsidianventuresystems.tech/csv-import-guide.html</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/showcase/</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/articles/duplicate-removal-risks.html</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/duplicate-removal-risks.html</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/articles/five-csv-import-problems.html</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/five-csv-import-problems.html</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/articles/shopify-inventory-audit.html</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/articles/shopify-inventory-audit.html</loc>
-    <lastmod>2026-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/scanner/csv-import-problems.html</loc>
-    <lastmod>2026-11-06</lastmod>
+    <loc>https://obsidianventuresystems.tech/scanner/csv-import-problems.html</loc>
+    <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/contractors.html</loc>
-    <lastmod>2026-11-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
+    <loc>https://obsidianventuresystems.tech/showcase/</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

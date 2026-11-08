@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /order-confirmation.html
 
-Sitemap: https://dustyknucks666-droid.github.io/obsidian-csv-cleaning-starter/sitemap.xml
+Sitemap: https://obsidianventuresystems.tech/sitemap.xml
