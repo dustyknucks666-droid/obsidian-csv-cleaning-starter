@@ -75,6 +75,7 @@
           "name": "Direct Stripe Duplicate Detection & Audit",
           "price": "29.00",
           "priceCurrency": "CAD",
+          "availability": "https://schema.org/OutOfStock",
           "url": "https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page"
         }
       ]
@@ -290,8 +291,8 @@
         <div class="stripe-services-block mt-4">
           <div class="stripe-header">
             <span class="badge">Direct One-Time Services (CAD)</span>
-            <h3>Direct Stripe-Hosted Checkout Services</h3>
-            <p class="text-muted">Instant purchase via secure Stripe-hosted payment pages. Scope confirmation and secure transfer instructions sent by email within one business day post-checkout (direct order terms; not platform escrow).</p>
+            <h3>Direct Services (CAD) &mdash; checkout paused</h3>
+            <p class="text-muted"><strong>Direct checkout is temporarily paused</strong> while payout verification is completed. Prices and scope below are unchanged: start an inquiry and an invoice will be arranged. Direct orders are not platform escrow.</p>
           </div>
           <div class="stripe-grid mt-3">
             <div class="stripe-card">
@@ -299,21 +300,21 @@
               <h4>CSV Cleaning Starter</h4>
               <div class="stripe-price">CA$15.00</div>
               <p>One CSV file up to 50 data rows. A cleaned copy, change log with every original value, and exceptions report.</p>
-              <a href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$15) &rarr;</a>
+              <a href="#contact" class="btn btn-outline btn-sm btn-block btn-paused" style="opacity:.75" data-stripe-checkout="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page" data-stripe-state="paused-payout-verification">Checkout paused &mdash; request a CA$15 invoice &rarr;</a>
             </div>
             <div class="stripe-card">
               <span class="stripe-tier">Audit</span>
               <h4>Duplicate Detection &amp; Audit</h4>
               <div class="stripe-price">CA$29.00</div>
               <p>One CSV file up to 2,000 data rows. Read-only report of duplicate groups, row numbers, and input SHA-256 fingerprint.</p>
-              <a href="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$29) &rarr;</a>
+              <a href="#contact" class="btn btn-outline btn-sm btn-block btn-paused" style="opacity:.75" data-stripe-checkout="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page" data-stripe-state="paused-payout-verification">Checkout paused &mdash; request a CA$29 invoice &rarr;</a>
             </div>
             <div class="stripe-card">
               <span class="stripe-tier">Quality</span>
               <h4>Spreadsheet Quality Audit</h4>
               <div class="stripe-price">CA$39.00</div>
-              <p>Ranked audit and column profile (up to 2,000 rows; 100 rows/30 cols/1 MiB). Read-only data health findings.</p>
-              <a href="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page" class="btn btn-outline btn-sm btn-block" target="_blank" rel="noopener noreferrer">Stripe Checkout (CA$39) &rarr;</a>
+              <p>Ranked audit and column profile for one CSV up to 100 data rows, 30 columns and 1 MiB. Read-only data health findings.</p>
+              <a href="#contact" class="btn btn-outline btn-sm btn-block btn-paused" style="opacity:.75" data-stripe-checkout="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page" data-stripe-state="paused-payout-verification">Checkout paused &mdash; request a CA$39 invoice &rarr;</a>
             </div>
           </div>
         </div>
@@ -333,7 +334,7 @@
             <div class="tools-banner-col">
               <span class="badge">Reference Guide</span>
               <h3>Five-Step CSV Import Preparation Guide</h3>
-              <p>Read our comprehensive technical guide on the five critical checks that catch 90% of spreadsheet import errors before they corrupt your accounting or CRM database.</p>
+              <p>Read the technical guide to five checks that catch common CSV import problems before they reach your accounting or CRM database, with a worked example on synthetic data.</p>
               <div class="tools-links mt-2">
                 <a href="csv-import-guide.html" class="btn btn-outline btn-sm">Read Import Guide &rarr;</a>
                 <a href="showcase/" class="link-subtle">Explore Showcase &rarr;</a>
@@ -474,6 +475,14 @@
           <span class="notice-icon">&#9888;</span>
           <span class="notice-text"><strong>SYNTHETIC DEMONSTRATION — NOT CUSTOMER WORK:</strong> The sample below uses fictional inventory records tested directly on our production audit engine.</span>
         </div>
+
+        <aside aria-labelledby="invoice-audit-demo-title" style="margin:24px 0;padding:24px;border:1px solid #cbd7c9;border-radius:12px;background:#f3f7ef;color:#17241e">
+          <p style="font-size:0.8rem;font-weight:700;letter-spacing:0.06em">READ-ONLY CSV AUDIT · SYNTHETIC EXAMPLE</p>
+          <h3 id="invoice-audit-demo-title">One invoice reference. Two amounts. A CA$50 difference to review.</h3>
+          <p>Inspect ten fictional supplier records and the three duplicate or conflict groups found by the existing audit engine. Open the real reports and source fingerprint. CSV exports only; native Excel workbook processing is not demonstrated.</p>
+          <a class="btn btn-primary" href="audit-demo/index.html">Explore the invoice audit example &rarr;</a>
+          <p style="font-size:0.8rem;margin:12px 0 0">Local preview of existing audit capabilities. No new offer or verified payment flow is implied.</p>
+        </aside>
 
         <!-- Demonstration Tabs -->
         <div class="demo-wrapper">
@@ -993,6 +1002,9 @@
                     <option value="fiverr-standard">Fiverr Standard Audit (US$100 / Up to 2,000 Rows)</option>
                     <option value="fiverr-premium">Fiverr Premium Scrub (US$200 / Up to 10,000 Rows)</option>
                     <option value="ottawa-starter">Ottawa Local Starter (CA$29 / Up to 100 Rows)</option>
+                    <option value="invoice-ca15">Direct invoice: CSV Cleaning Starter (CA$15 / up to 50 rows)</option>
+                    <option value="invoice-ca29">Direct invoice: Duplicate Detection &amp; Audit (CA$29 / up to 2,000 rows)</option>
+                    <option value="invoice-ca39">Direct invoice: Spreadsheet Quality Audit (CA$39 / up to 100 rows, 30 columns)</option>
                     <option value="custom-consultation">Custom Operational Consultation</option>
                   </select>
                 </div>

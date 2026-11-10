@@ -196,8 +196,8 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
       <div class="result-card tier-card">
         <h3>Recommended Service Fit</h3>
         <div class="tier-badge" id="res-tier-badge">LIKELY BASIC</div>
-        <p class="tier-desc" id="res-tier-desc">Fits Basic Package (&le; 500 rows). Cleaned file, duplicate removal, formatting standard, and change log.</p>
-        <p class="tier-price" id="res-tier-price">From $15 USD / $20 CAD</p>
+        <p class="tier-desc" id="res-tier-desc">Fits Basic Package (&le; 100 rows). Cleaned file, changes log, exceptions sheet, summary and verification report.</p>
+        <p class="tier-price" id="res-tier-price">Fiverr Basic: US$20</p>
         <p class="tier-disclaimer">Estimate only &mdash; final scope confirmed before processing.</p>
       </div>
     </div>
@@ -209,7 +209,7 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
       </div>
       <div class="val-col paid-col">
         <strong>Paid Fulfillment (Event Horizon Engine):</strong>
-        <p>OBSIDIAN cleans, standardizes, deduplicates, and delivers a production-ready file + verified audit log and cryptographic receipt.</p>
+        <p>OBSIDIAN cleans and standardizes the file, flags duplicate and conflicting records for your decision, and delivers a verified audit log and receipt.</p>
       </div>
     </div>
 
@@ -229,30 +229,30 @@ footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line
 
   <section class="offer" id="repair" aria-labelledby="repair-title">
     <h2 id="repair-title">Professional Cleanup &amp; Verification Services</h2>
-    <p>The scan is free and stays free. If you want your file professionally repaired, standardized, and deduplicated without silent row deletion, choose an authorized path below:</p>
+    <p>The scan is free and stays free. If you want your file professionally cleaned and standardized, with duplicates and conflicts flagged for your decision rather than deleted, choose an authorized path below:</p>
     <div class="offer-grid">
       <article class="offer-card">
-        <span class="sev low" style="margin-bottom:0.5rem;">Direct Checkout</span>
+        <span class="sev low" style="margin-bottom:0.5rem;">Direct Service &mdash; Checkout Paused</span>
         <h3>Direct Stripe Services</h3>
-        <p class="price">From CA$15 &ndash; CA$39</p>
+        <p class="price">Direct: CA$15, CA$29 or CA$39</p>
         <ul>
-          <li><strong>CA$15 CSV Starter:</strong> Cleaned file + change log (&le; 500 rows).</li>
-          <li><strong>CA$29 Duplicate Audit:</strong> Comprehensive deduplication (&le; 2,500 rows).</li>
-          <li><strong>CA$39 Quality Audit:</strong> Full ranked quality audit &amp; consolidation.</li>
+          <li><strong>CA$15 CSV Starter:</strong> Cleaned file, change log and exceptions report (&le; 50 rows).</li>
+          <li><strong>CA$29 Duplicate Audit:</strong> Read-only duplicate and conflict report (&le; 2,000 rows).</li>
+          <li><strong>CA$39 Quality Audit:</strong> Ranked quality audit and column profile (row cap confirmed before payment).</li>
           <li>Instant checkout powered by Stripe. Zero platform middleman.</li>
         </ul>
-        <p class="note">Scope confirmed before work commences. 100% money-back guarantee.</p>
+        <p class="note">Direct checkout is paused while payout verification is completed; prices and scope are unchanged. Scope is confirmed before work commences. No automatic refund is promised; cancellation follows the checkout terms.</p>
         <a class="button" href="../index.html#services" style="width:100%;">View Direct Options &rarr;</a>
       </article>
 
       <article class="offer-card">
         <span class="sev medium" style="margin-bottom:0.5rem;">Marketplace Escrow</span>
         <h3>Fiverr Verified Service</h3>
-        <p class="price">From US$15 on Fiverr</p>
+        <p class="price">From US$20 on Fiverr</p>
         <ul>
-          <li><strong>Basic (US$15):</strong> Up to 500 rows thoroughly cleaned, 24h delivery.</li>
-          <li><strong>Standard (US$45):</strong> Up to 2,500 rows with full exception audit.</li>
-          <li><strong>Premium (US$95):</strong> Up to 10,000 rows or multi-file consolidation.</li>
+          <li><strong>Basic (US$20):</strong> Up to 100 rows, 3-day delivery, 1 revision.</li>
+          <li><strong>Standard (US$100):</strong> Up to 2,000 rows, 3-day delivery, 2 revisions.</li>
+          <li><strong>Premium (US$200):</strong> Up to 10,000 rows, 7-day delivery, 3 revisions.</li>
           <li>Third-party platform escrow protection and messaging.</li>
         </ul>
         <p class="note">Protected marketplace milestone escrow.</p>
@@ -935,18 +935,18 @@ var DataRescueScanner = (function () {
       tierBadge.textContent = 'CUSTOM REVIEW';
       tierDesc.textContent = 'Dataset has ' + rows.toLocaleString('en-US') + ' rows, exceeding standard package caps. Enterprise consolidation and custom scoping required.';
       tierPrice.textContent = 'Custom Scope';
-    } else if (rows > 2500) {
+    } else if (rows > 2000) {
       tierBadge.textContent = 'LIKELY PREMIUM';
-      tierDesc.textContent = 'Fits Premium Package (up to 10,000 rows). Comprehensive deduplication, date/spacing standardization, and verified audit log.';
-      tierPrice.textContent = 'From $95 USD / $130 CAD';
-    } else if (rows > 500) {
+      tierDesc.textContent = 'Fits Premium Package (up to 10,000 rows, 7-day delivery, 3 revisions). Formatting standardized; duplicates and conflicts flagged for your decision.';
+      tierPrice.textContent = 'Fiverr Premium: US$200';
+    } else if (rows > 100) {
       tierBadge.textContent = 'LIKELY STANDARD';
-      tierDesc.textContent = 'Fits Standard Package (up to 2,500 rows). Comprehensive deduplication, date/spacing standardization, and exception reporting.';
-      tierPrice.textContent = 'From $45 USD / $60 CAD';
+      tierDesc.textContent = 'Fits Standard Package (up to 2,000 rows, 3-day delivery, 2 revisions). Formatting standardized; duplicates and conflicts flagged for your decision.';
+      tierPrice.textContent = 'Fiverr Standard: US$100';
     } else {
       tierBadge.textContent = 'LIKELY BASIC';
-      tierDesc.textContent = 'Fits Basic Package (<= 500 rows). Thorough cleanup, duplicate detection, standard formatting, and change record.';
-      tierPrice.textContent = 'From $15 USD / $20 CAD';
+      tierDesc.textContent = 'Fits Basic Package (<= 100 rows, 3-day delivery, 1 revision). Formatting standardized; duplicates and conflicts flagged for your decision.';
+      tierPrice.textContent = 'Fiverr Basic: US$20';
     }
 
     // Detailed Findings

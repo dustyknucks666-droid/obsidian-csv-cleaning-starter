@@ -1627,3 +1627,29 @@ body {
     margin-top: 0.5rem;
   }
 }
+
+/* public-trust-repair-2026-11-10 */
+@media (max-width: 1249px) {
+  .nav-toggle { display: block; }
+  .site-nav { position: fixed; top: 4.5rem; left: 0; width: 100%;
+    background: #fff; border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-lg); padding: 1.5rem;
+    transform: translateY(-150%); transition: transform var(--transition-normal); }
+  .site-nav.open { transform: translateY(0); }
+  .nav-list { flex-direction: column; align-items: stretch; gap: 1rem; }
+  .nav-list .btn { text-align: center; margin-top: 0.5rem; }
+}
+
+@media (min-width: 1250px) {
+  .nav-toggle { display: none; }
+  .header-inner { gap: 1.5rem; }
+  .brand-sub { white-space: nowrap; }
+  .nav-list { gap: 1rem; }
+  .nav-link { font-size: 0.875rem; white-space: nowrap; }
+}
+
+/* Grid children cannot shrink below their content, so the hero proof strip
+   pushed the page past a phone viewport. */
+.hero-content,
+.hero-visual { min-width: 0; }
+.hero-proof-strip { flex-wrap: wrap; }
